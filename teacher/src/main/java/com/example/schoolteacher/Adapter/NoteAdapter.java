@@ -13,44 +13,48 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.schoolteacher.Model.NoteClass;
+import androidx.annotation.NonNull;
+
+import com.example.schoolteacher.Model.ClassModel;
 import com.example.schoolteacher.NoteScreenActivity;
 import com.example.schoolteacher.R;
 
 import java.util.List;
 
-public class NoteAdapter extends ArrayAdapter<NoteClass> {
+public class NoteAdapter extends ArrayAdapter<ClassModel> {
 
     private Activity context;
-    List<NoteClass> notes;
+    private List<ClassModel> classList;
 
-    public NoteAdapter(Activity context, List<NoteClass> notes) {
-        super(context, R.layout.custom_view, notes);
+    public NoteAdapter(Activity context, List<ClassModel> classList) {
+
+        super(context, R.layout.custom_view, classList);
+
         this.context = context;
-        this.notes = notes;
+        this.classList = classList;
     }
 
     @Override
     public int getCount() {
-        notes.size();
+
+        classList.size();
         return super.getCount();
     }
 
     @Override
-    public View getView(final int position, final View convertView, final ViewGroup parent) {
+    @NonNull
+    public View getView(final int position, final View convertView, @NonNull final ViewGroup parent) {
 
-        LayoutInflater layoutInflater = context.getLayoutInflater();
-        final View customView = layoutInflater.inflate(R.layout.custom_view, null, true);
+        final View customView = LayoutInflater.from(context).inflate(R.layout.custom_view, parent, false);
 
-        TextView tvCustomNoteTitle = (TextView) customView.findViewById(R.id.tvCustomNoteTitle);
-        TextView tvCustomNote = (TextView) customView.findViewById(R.id.tvCustomNote);
-        TextView tvCustomCreatedDate = (TextView) customView.findViewById(R.id.tvCustomCreatedDate);
+        TextView tvCustomNoteTitle = customView.findViewById(R.id.tvCustomNoteTitle);
+        TextView tvCustomNote = customView.findViewById(R.id.tvCustomNote);
+        TextView tvCustomCreatedDate = customView.findViewById(R.id.tvCustomCreatedDate);
         final ImageView menuIcon = customView.findViewById(R.id.menuIcon);
 
-        final NoteClass note = notes.get(position);
-        tvCustomNoteTitle.setText(note.getNoteTitle());
-        tvCustomNote.setText(note.getNote());
-        tvCustomCreatedDate.setText(note.getCreatedDate());
+        tvCustomNoteTitle.setText(classList.get(position).getClassName());
+        tvCustomNote.setText(classList.get(position).getDescription());
+        tvCustomCreatedDate.setText(classList.get(position).getCreatedAt());
 
         menuIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,34 +64,29 @@ public class NoteAdapter extends ArrayAdapter<NoteClass> {
                 popupMenu.inflate(R.menu.popup_menu);
                 popupMenu.setGravity(Gravity.END);
                 popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
 
-                        switch (item.getItemId()) {
-                            case R.id.action_edit:
-                                Toast.makeText(context, "Edit", Toast.LENGTH_SHORT).show();
-                                Intent i=new Intent(context, NoteScreenActivity.class);
-                                i.putExtra("id",note.noteId);
-                                i.putExtra("noteTitle",note.noteTitle);
-                                i.putExtra("note",note.note);
-                                context.startActivity(i);
-                                break;
-                            default:
-                                break;
+                        if (item.getItemId() == R.id.action_edit) {
+
+                            Toast.makeText(context, "Edit", Toast.LENGTH_SHORT).show();
+                            Intent i = new Intent(context, NoteScreenActivity.class);
+
+                            i.putExtra("id", classList.get(position).getClassId());
+                            i.putExtra("noteTitle", classList.get(position).getClassName());
+                            i.putExtra("note", classList.get(position).getDescription());
+
+                            context.startActivity(i);
                         }
 
                         return false;
                     }
                 });
+
                 popupMenu.show();
             }
         });
-
-
-
-
-
-
 
         return customView;
     }

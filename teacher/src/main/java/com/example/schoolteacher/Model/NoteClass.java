@@ -1,17 +1,28 @@
 package com.example.schoolteacher.Model;
 
+import com.google.gson.annotations.SerializedName;
+
 public class NoteClass {
-    public String noteId;
-    public String noteTitle;
-    public String note;
-    public String createdDate;
-    public String shortDescription;
+
+    @SerializedName("note_id")
+    private String noteId;
+    @SerializedName("note_title")
+    private String noteTitle;
+    @SerializedName("note")
+    private String note;
+    @SerializedName("created_at")
+    private String createdDate;
+    @SerializedName("description")
+    private String shortDescription;
+    @SerializedName("followers")
+    private int follwerCount;
 
     public NoteClass() {
 
     }
 
     public NoteClass(String noteId, String noteTitle, String note, String createdDate) {
+
         this.noteId = noteId;
         this.noteTitle = noteTitle;
         this.note = note;

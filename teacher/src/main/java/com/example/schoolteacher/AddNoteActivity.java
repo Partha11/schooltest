@@ -15,29 +15,34 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NavUtils;
 
-import com.example.schoolteacher.Model.NoteClass;
+import com.example.schoolteacher.Model.Attendance;
+import com.example.schoolteacher.Model.ClassModel;
+import com.example.schoolteacher.login.LoginActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.UUID;
+import java.util.List;
+import java.util.Locale;
 
 public class AddNoteActivity extends AppCompatActivity {
 
-    EditText etAddNote;
-    EditText etAddNoteTitle;
-    TextView tvAddNoteCreatedDate;
-    FirebaseDatabase firebaseDatabase;
-    DatabaseReference myRef;
+    private EditText etAddNote;
+    private EditText etAddNoteTitle;
+    private TextView tvAddNoteCreatedDate;
 
-    String userID;
+    private FirebaseUser currentUser;
+    private DatabaseReference reference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_note);
 
@@ -47,7 +52,9 @@ public class AddNoteActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         ActionBar actionBar = this.getSupportActionBar();
+
         if (actionBar != null) {
+
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.ic_close);
         }
@@ -62,19 +69,24 @@ public class AddNoteActivity extends AppCompatActivity {
         etAddNoteTitle = findViewById(R.id.ettAddNoteTitle);
         tvAddNoteCreatedDate = findViewById(R.id.tvAddNoteCreatedDate);
 
-        userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        reference = FirebaseDatabase.getInstance().getReference("Notes");
 
-        firebaseDatabase = FirebaseDatabase.getInstance();
-        myRef = firebaseDatabase.getReference("Users").child(userID).child("Notes");
+        if (currentUser == null) {
 
-
+            finishAffinity();
+            startActivity(new Intent(this, LoginActivity.class));
+        }
     }
 
     // itemSelected toolbar
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         int id = item.getItemId();
+
         if (id == android.R.id.home) {
+
             NavUtils.navigateUpFromSameTask(this);
         }
 
@@ -82,49 +94,57 @@ public class AddNoteActivity extends AppCompatActivity {
     }
 
 
-
     public void add(View view) {
 
-
         Date createdDateNote = new Date();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.US);
 
-        tvAddNoteCreatedDate.setText(simpleDateFormat.format(createdDateNote));
+        tvAddNoteCreatedDate.setText(sdf.format(createdDateNote));
 
-        String note = etAddNote.getText().toString().trim();
-        String noteTitle = etAddNoteTitle.getText().toString().trim();
-        String createdDate = tvAddNoteCreatedDate.getText().toString();
+        String classDescription = etAddNote.getText().toString().trim();
+        String classTitle = etAddNoteTitle.getText().toString().trim();
 
+        if (!TextUtils.isEmpty(classDescription) && !TextUtils.isEmpty(classTitle)) {
 
-        if (!TextUtils.isEmpty(note) && !TextUtils.isEmpty(noteTitle)) {
+            String classId = reference.push().getKey();
+            ClassModel mClass = new ClassModel();
 
-            String noteId = myRef.push().getKey();
+            mClass.setClassId(classId);
+            mClass.setClassName(classTitle);
+            mClass.setDescription(classDescription);
+            mClass.setCreatedBy(currentUser.getEmail());
+            mClass.setCreatedAt(sdf.format(createdDateNote));
+            mClass.setClassFollowers(0);
 
-            NoteClass noteClass = new NoteClass(noteId, noteTitle, note, createdDate);
+            if (classId == null) {
 
-            myRef.child(noteId).setValue(noteClass).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                     if (task.isSuccessful()){
+                Toast.makeText(this, "Please try again", Toast.LENGTH_SHORT).show();
 
-                         Toast.makeText(AddNoteActivity.this, getString(R.string.class_added), Toast.LENGTH_SHORT).show();
-                         Intent intent = new Intent(getApplicationContext(), ClassActivity.class);
-                         startActivity(intent);
+            } else {
 
+                reference.child(classId).setValue(mClass).addOnCompleteListener(new OnCompleteListener<Void>() {
 
-                     }else {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
 
-                         Toast.makeText(AddNoteActivity.this, "Please try again", Toast.LENGTH_SHORT).show();
-                     }
-                }
-            });
+                        if (task.isSuccessful()) {
 
+                            Toast.makeText(AddNoteActivity.this, getString(R.string.class_added), Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(getApplicationContext(), ClassActivity.class);
+                            startActivity(intent);
+
+                        } else {
+
+                            Toast.makeText(AddNoteActivity.this, "Please try again", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
 
         } else {
+
             Toast.makeText(this, getString(R.string.enter_class), Toast.LENGTH_LONG).show();
         }
-
-
     }
 
     /*private void writeNewNote(String noteId, String note, String createdDate) {

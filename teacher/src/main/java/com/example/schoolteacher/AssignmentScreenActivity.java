@@ -1,142 +1,125 @@
 package com.example.schoolteacher;
 
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.NavUtils;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NavUtils;
 
 import com.example.schoolteacher.Model.AssignClass;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import java.util.Objects;
 
 public class AssignmentScreenActivity extends AppCompatActivity {
 
-    List<AssignClass> assignmentList;
+    private TextInputEditText etUpdateAssignmentTitle;
+    private TextInputEditText etUpdateAssignment;
 
-    TextInputEditText etUpdateAssignmentTitle;
-    TextInputEditText etUpdateAssignment;
-    Button btnUpdateAssingment;
-    Button btnDeleteAssignment;
+    private DatabaseReference reference = null;
 
-    String asId;
-    String id;
-    String noteId;
+    private String assignmentId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_assign);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
-        ActionBar actionBar = this.getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_close);
-        }
+        setSupportActionBar(toolbar);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setHomeAsUpIndicator(R.drawable.ic_close);
 
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-
 
         Intent intent = getIntent();
 
         etUpdateAssignmentTitle = findViewById(R.id.etUpdateAssignmentTitle);
         etUpdateAssignment = findViewById(R.id.etUpdateAssignment);
-        btnUpdateAssingment = findViewById(R.id.btnUpdateAssingment);
-        btnDeleteAssignment = findViewById(R.id.btnDeleteAssignment);
 
+        Button btnUpdateAssignment = findViewById(R.id.btnUpdateAssingment);
+        Button btnDeleteAssignment = findViewById(R.id.btnDeleteAssignment);
 
         etUpdateAssignmentTitle.setText(intent.getStringExtra("assignmentTitle"));
         etUpdateAssignment.setText(intent.getStringExtra("assignment"));
 
-        asId = intent.getStringExtra("asId");
+        assignmentId = intent.getStringExtra("asId");
+        String classId = getIntent().getStringExtra("classId");
 
-        btnUpdateAssingment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        if (classId != null) {
 
-                String etUpdateAssignmentTitles = etUpdateAssignmentTitle.getText().toString();
-                String etUpdateAssignments = etUpdateAssignment.getText().toString();
+            reference = FirebaseDatabase.getInstance().getReference("Notes").child(classId).child("Assignments");
 
-                if (!TextUtils.isEmpty(etUpdateAssignments) && !TextUtils.isEmpty(etUpdateAssignmentTitles)) {
-                    updateAssignment(asId, etUpdateAssignmentTitles, etUpdateAssignments);
+        } else {
 
-                    Intent intent = new Intent(getApplicationContext(), ClassworkActivity.class);
-                    startActivity(intent);
-                } else {
-                    Toast.makeText(AssignmentScreenActivity.this, getString(R.string.enter_informations), Toast.LENGTH_SHORT).show();
-                }
+            Toast.makeText(this, "No matching classes found", Toast.LENGTH_SHORT).show();
+        }
 
+        btnUpdateAssignment.setOnClickListener(v -> {
 
+            String etUpdateAssignmentTitles = Objects.requireNonNull(etUpdateAssignmentTitle.getText()).toString();
+            String etUpdateAssignments = Objects.requireNonNull(etUpdateAssignment.getText()).toString();
+
+            if (!TextUtils.isEmpty(etUpdateAssignments) && !TextUtils.isEmpty(etUpdateAssignmentTitles)) {
+
+                updateAssignment(assignmentId, etUpdateAssignmentTitles, etUpdateAssignments);
+                finish();
+
+            } else {
+
+                Toast.makeText(AssignmentScreenActivity.this, getString(R.string.enter_informations), Toast.LENGTH_SHORT).show();
             }
+
         });
 
-        btnDeleteAssignment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        btnDeleteAssignment.setOnClickListener(v -> {
 
-                deleteAssignment(asId);
-                Intent intent = new Intent(getApplicationContext(), ClassworkActivity.class);
-                startActivity(intent);
-
-            }
+            deleteAssignment(assignmentId);
+            finish();
         });
     }
 
-    private boolean updateAssignment(String assignmentid, String asTitle, String assignment) {
+    private void updateAssignment(String assignmentId, String asTitle, String assignment) {
 
-        String noteId = getIntent().getStringExtra("id");
-//        Intent intent = getIntent();
-//        noteId = intent.getStringExtra("noteId");
+        if (reference != null) {
 
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Notes").child(noteId).child("Assignments").child(assignmentid);
-
-        AssignClass assignmentClass = new AssignClass(assignmentid, asTitle, assignment);
-        reference.setValue(assignmentClass);
+            AssignClass assignmentClass = new AssignClass(assignmentId, asTitle, assignment);
+            reference.child(assignmentId).setValue(assignmentClass);
+        }
 
         Toast.makeText(this, getString(R.string.assignment_updated), Toast.LENGTH_SHORT).show();
-
-        return true;
     }
 
-    private boolean deleteAssignment(String assignmentid) {
+    private void deleteAssignment(String assignmentId) {
 
-        //Intent intent = getIntent();
-        String id = getIntent().getStringExtra("id");
+        if (reference != null) {
 
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Notes").child(id).child("Assignments").child(assignmentid);
-        reference.removeValue();
-
-        Toast.makeText(this, getString(R.string.assignment_deleted), Toast.LENGTH_SHORT).show();
-
-        return true;
+            reference.child(assignmentId).removeValue();
+            Toast.makeText(this, getString(R.string.assignment_deleted), Toast.LENGTH_SHORT).show();
+        }
     }
 
-
-// toolbar
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         int id = item.getItemId();
+
         if (id == android.R.id.home) {
+
             NavUtils.navigateUpFromSameTask(this);
         }
+
         return super.onOptionsItemSelected(item);
     }
 }

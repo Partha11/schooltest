@@ -101,7 +101,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:background="@drawable/myaddbtn"
-            android:onClick="AddAssign"
+            android:onClick="addAssignment"
             android:text="Save"
             android:textAllCaps="false"
             android:textColor="@android:color/white"/>

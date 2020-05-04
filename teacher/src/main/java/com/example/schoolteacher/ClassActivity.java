@@ -8,6 +8,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -15,6 +16,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.schoolteacher.Adapter.NoteAdapter;
+import com.example.schoolteacher.Model.ClassModel;
 import com.example.schoolteacher.Model.NoteClass;
 import com.example.schoolteacher.login.LoginActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -37,6 +39,7 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class ClassActivity extends AppCompatActivity {
 
@@ -44,7 +47,7 @@ public class ClassActivity extends AppCompatActivity {
 
     FirebaseDatabase firebaseDatabase;
     DatabaseReference myRef;
-    List<NoteClass> noteList;
+    List<ClassModel> classlist;
     ListView listView;
 
     TextView tvNoteCount;
@@ -71,7 +74,6 @@ public class ClassActivity extends AppCompatActivity {
 
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
         bottomNav.setSelectedItemId(R.id.bottomBarItemSecond);
-
 
         bottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -101,12 +103,9 @@ public class ClassActivity extends AppCompatActivity {
         });
 
 
-
         // Initialize Firebase Auth
         mFirebaseAuth = FirebaseAuth.getInstance();
         mCurrentUser = mFirebaseAuth.getCurrentUser();
-
-
 
         //Navigation drawer
         new DrawerBuilder().withActivity(this).build();
@@ -120,37 +119,37 @@ public class ClassActivity extends AppCompatActivity {
                 .withIcon(R.drawable.ic_account_circle);
 
         //secondary items
-        SecondaryDrawerItem calendar = (SecondaryDrawerItem) new SecondaryDrawerItem()
+        SecondaryDrawerItem calendar = new SecondaryDrawerItem()
                 .withIdentifier(11)
                 .withName(R.string.drawer_item_calendar)
                 .withIcon(R.drawable.ic_calendar);
-        SecondaryDrawerItem attendance = (SecondaryDrawerItem) new SecondaryDrawerItem()
+        SecondaryDrawerItem attendance = new SecondaryDrawerItem()
                 .withIdentifier(12)
                 .withName(R.string.drawer_item_attendance)
                 .withIcon(R.drawable.ic_attendance);
-        SecondaryDrawerItem whatsdue = (SecondaryDrawerItem) new SecondaryDrawerItem()
+        SecondaryDrawerItem whatsdue = new SecondaryDrawerItem()
                 .withIdentifier(13)
                 .withName(R.string.drawer_item_due)
                 .withIcon(R.drawable.ic_assignment);
-        SecondaryDrawerItem grades = (SecondaryDrawerItem) new SecondaryDrawerItem()
+        SecondaryDrawerItem grades = new SecondaryDrawerItem()
                 .withIdentifier(14)
                 .withName(R.string.drawer_item_grades)
                 .withIcon(R.drawable.ic_grades);
-        SecondaryDrawerItem folders = (SecondaryDrawerItem) new SecondaryDrawerItem()
+        SecondaryDrawerItem folders = new SecondaryDrawerItem()
                 .withIdentifier(15)
                 .withName(R.string.drawer_item_folders)
                 .withIcon(R.drawable.ic_folder);
 
         //settings, help, contact items
-        SecondaryDrawerItem settings = (SecondaryDrawerItem) new SecondaryDrawerItem()
+        SecondaryDrawerItem settings = new SecondaryDrawerItem()
                 .withIdentifier(97)
                 .withName(R.string.drawer_item_settings)
                 .withIcon(R.drawable.ic_settings);
-        SecondaryDrawerItem help = (SecondaryDrawerItem) new SecondaryDrawerItem()
+        SecondaryDrawerItem help = new SecondaryDrawerItem()
                 .withIdentifier(98)
                 .withName(R.string.drawer_item_help)
                 .withIcon(R.drawable.ic_help);
-        SecondaryDrawerItem logout = (SecondaryDrawerItem) new SecondaryDrawerItem()
+        SecondaryDrawerItem logout = new SecondaryDrawerItem()
                 .withIdentifier(99)
                 .withName(R.string.drawer_item_logout)
                 .withIcon(R.drawable.ic_logout);
@@ -221,7 +220,7 @@ public class ClassActivity extends AppCompatActivity {
 
         listView = findViewById(R.id.listView);
 
-        noteList = new ArrayList<>();
+        classlist = new ArrayList<>();
 
         tvNoteCount = findViewById(R.id.tvNoteCount);
 
@@ -229,27 +228,24 @@ public class ClassActivity extends AppCompatActivity {
 
 
         firebaseDatabase = FirebaseDatabase.getInstance();
-        myRef = firebaseDatabase.getReference("Users").child(userID).child("Notes");
+        myRef = firebaseDatabase.getReference("Notes");
 
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long noteId) {
 
-                NoteClass noteClass = noteList.get(position);
+                ClassModel mClass = classlist.get(position);
                 Intent intent = new Intent(getApplicationContext(), ClassworkActivity.class);
-                intent.putExtra("id", noteClass.getNoteId());
-                intent.putExtra("noteTitle", noteClass.getNoteTitle());
-                intent.putExtra("note", noteClass.getNote());
-                startActivity(intent);
 
+                intent.putExtra("id", mClass.getClassId());
+                intent.putExtra("noteTitle", mClass.getClassName());
+                intent.putExtra("note", mClass.getDescription());
+
+                startActivity(intent);
             }
         });
-
-
-
-
-        // fab
 
         FloatingActionButton fab = findViewById(R.id.fab);
 
@@ -260,28 +256,31 @@ public class ClassActivity extends AppCompatActivity {
                 startActivity(new Intent(getApplicationContext(), AddNoteActivity.class));
             }
         });
-
-
-
-
-
     }
 
 
     @Override
     protected void onStart() {
+
         super.onStart();
         FirebaseUser currentUser = mFirebaseAuth.getCurrentUser();
-        if(currentUser == null){
+
+        if (currentUser == null) {
+
             sendToStart();
+            return;
         }
+
+        Log.d("User", Objects.requireNonNull(currentUser.getEmail()));
+
         getDataForFirebase();
     }
 
     private void sendToStart() {
+
         Intent startIntent = new Intent(ClassActivity.this, LoginActivity.class);
         startActivity(startIntent);
-        finish();
+        finishAffinity();
     }
 
 /*
@@ -294,41 +293,40 @@ public class ClassActivity extends AppCompatActivity {
 
 
     public void getDataForFirebase() {
-        noteList.clear();
-
 
         myRef.addValueEventListener(new ValueEventListener() {
+
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
+                int count = 0;
+                String cText;
+
+                classlist.clear();
 
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
 
+                    ClassModel notes = ds.getValue(ClassModel.class);
+                    classlist.add(notes);
 
-                    NoteClass notes = ds.getValue(NoteClass.class);
-
-                    noteList.add(notes);
-
-
+                    count++;
                 }
 
-                Collections.reverse(noteList);
-                NoteAdapter noteAdapter = new NoteAdapter(ClassActivity.this, noteList);
-                tvNoteCount.setText(noteAdapter.getCount() + " " + getString(R.string.classes));
+                Collections.reverse(classlist);
+                NoteAdapter noteAdapter = new NoteAdapter(ClassActivity.this, classlist);
 
+                cText = count + " " + getString(R.string.classes);
+
+                tvNoteCount.setText(cText);
                 listView.setAdapter(noteAdapter);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
+                Log.d("Error", databaseError.getMessage());
             }
         });
 
     }
-
-
-
 }
-
-
