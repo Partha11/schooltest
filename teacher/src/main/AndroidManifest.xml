@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.schoolteacher">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name=".GradesActivity"></activity>
+        <activity android:name=".NotificationsActivity" />
+        <activity
+            android:name=".StreamScreenActivity"
+            android:label="Update Post"
+            android:parentActivityName=".StreamActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ClassActivity" />
+        </activity>
+        <activity
+            android:name=".AddStreamActivity"
+            android:label="Update Post"
+            android:parentActivityName=".StreamActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ClassActivity" />
+        </activity>
+        <activity
+            android:name=".StreamActivity"
+            android:label="@string/stream"
+            android:parentActivityName=".ClassActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ClassActivity" />
+        </activity>
+        <activity
+            android:name=".ScheduleActivity"
+            android:label="Scheduler"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+        <activity android:name=".AttendanceActivity" />
+        <activity
+            android:name=".AddSchedulerActivity"
+            android:label="Create Schedule"
+            android:parentActivityName=".ScheduleActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ScheduleActivity" />
+        </activity>
+        <activity android:name=".PhotoActivity" />
+        <activity
+            android:name=".NewPostActivity"
+            android:label="New Post"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+        <activity android:name=".parents.AddStudentActivity" />
+        <activity
+            android:name=".ProfileActivity"
+            android:label="Profile"
+            android:parentActivityName=".MessageActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MessageActivity" />
+        </activity>
+        <activity
+            android:name=".ChatsActivity"
+            android:parentActivityName=".MessageActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MessageActivity" />
+        </activity>
+        <activity
+            android:name=".RequestsActivity"
+            android:label="Requests"
+            android:parentActivityName=".MessageActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MessageActivity" />
+        </activity>
+        <activity
+            android:name=".FindFriendActivity"
+            android:label="People you may know"
+            android:parentActivityName=".MessageActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MessageActivity" />
+        </activity>
+        <activity
+            android:name=".ChangeSchoolActivity"
+            android:label="Add Your School"
+            android:parentActivityName=".ProfileInfoActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ProfileInfoActivity" />
+        </activity>
+        <activity
+            android:name=".NoteScreenActivity"
+            android:label="Edit Class"
+            android:parentActivityName=".ClassActivity" />
+
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value=".ClassActivity" />
+
+        <activity
+            android:name=".PeopleActivity"
+            android:label="@string/people"
+            android:parentActivityName=".ClassActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ClassActivity" />
+        </activity>
+        <activity
+            android:name=".ClassworkActivity"
+            android:label="@string/classwork"
+            android:parentActivityName=".ClassActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ClassActivity" />
+        </activity>
+        <activity
+            android:name=".AddAssignmentActivity"
+            android:label="Add Assignment"
+            android:parentActivityName=".ClassworkActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ClassworkActivity" />
+        </activity>
+        <activity android:name=".SettingsActivity" />
+        <activity android:name=".MessageActivity" />
+        <activity
+            android:name=".ProfileInfoActivity"
+            android:label="@string/profile"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+        <activity
+            android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
+            android:theme="@style/Base.Theme.AppCompat" />
+        <activity
+            android:name=".About"
+            android:label="About"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".SplashActivity"
+            android:theme="@style/SplashTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".ResetPasswordActivity" />
+        <activity android:name=".login.SignupActivity" />
+        <activity android:name=".login.LoginActivity" />
+        <activity
+            android:name=".ClassActivity"
+            android:label="Classes">
+            <intent-filter>
+                <action android:name="com.example.schoolteacher.AddClassActivity" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".AddNoteActivity"
+            android:label="Create Class"
+            android:parentActivityName=".ClassActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ClassActivity" />
+        </activity>
+        <activity
+            android:name=".AssignmentScreenActivity"
+            android:label="Edit Assignment"
+            android:parentActivityName=".ClassActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ClassActivity" />
+        </activity> <!-- Parents -->
+        <activity
+            android:name=".parents.MainParentsActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".parents.SettingsParentsActivity"
+            android:label="@string/setting"
+            android:parentActivityName="parents.MainParentsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="parents.MainParentsActivity" />
+        </activity>
+        <activity
+            android:name=".parents.ProfileInfoParentActivity"
+            android:label="@string/profile_details"
+            android:parentActivityName="parents.MainParentsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="parents.MainParentsActivity" />
+        </activity>
+        <activity android:name=".parents.PhotoParentActivity" />
+        <activity
+            android:name=".parents.NewPostParentActivity"
+            android:label="New Post"
+            android:parentActivityName=".parents.ExploreParentActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="parents.ExploreParentActivity" />
+        </activity>
+        <activity
+            android:name=".parents.ExploreParentActivity"
+            android:label="@string/explore" />
+        <activity
+            android:name=".parents.MessageParentActivity"
+            android:label="Messages" />
+        <activity
+            android:name=".parents.DueParentsActivity"
+            android:label="@string/whatsdue_act" />
+        <activity
+            android:name=".FindParentActivity"
+            android:label="Add Parent to Class"
+            android:parentActivityName=".PeopleActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".PeopleActivity" />
+        </activity>
+        <activity
+            android:name=".ParentProfileActivity"
+            android:label="Parent Profile"
+            android:parentActivityName=".PeopleActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".PeopleActivity" />
+        </activity>
+        <activity
+            android:name=".parents.RequestParentActivity"
+            android:label="Notifications" />
+    </application>
+
+</manifest>

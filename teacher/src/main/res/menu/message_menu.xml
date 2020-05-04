@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/main_find_friends_option"
+        android:orderInCategory="10"
+        android:title="Find Friend"
+        android:icon="@drawable/ic_person_add"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/requests"
+        android:orderInCategory="10"
+        android:title="Requests"
+        android:icon="@drawable/ic_request"
+        app:showAsAction="always"/>
+
+</menu>

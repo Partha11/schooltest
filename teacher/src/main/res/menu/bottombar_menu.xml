@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--Every item for another tab-->
+    <item
+        android:id="@+id/bottomBarItemFirst"
+        android:icon="@drawable/ic_home"
+        android:title="@string/home" />
+    <item
+        android:id="@+id/bottomBarItemSecond"
+        android:icon="@drawable/ic_class"
+        android:title="@string/classes" />
+    <item
+        android:id="@+id/bottomBarItemThird"
+        android:icon="@drawable/ic_message"
+        android:title="@string/messages"/>
+    <item
+        android:id="@+id/bottomBarItemFourth"
+        android:icon="@drawable/ic_notifications"
+        android:title="@string/notifications" />
+
+</menu>

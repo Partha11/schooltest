@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "886475354465",
+    "firebase_url": "https://schoolteacher-1f832.firebaseio.com",
+    "project_id": "schoolteacher-1f832",
+    "storage_bucket": "schoolteacher-1f832.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:886475354465:android:47f5a0856114be71c59520",
+        "android_client_info": {
+          "package_name": "com.example.schoolteacher"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "886475354465-u88gj9hf4pipr6s4psfdcg9ip821l92o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.schoolteacher",
+            "certificate_hash": "9c8d34c9c13cce0753de53fbad62c21ffda11983"
+          }
+        },
+        {
+          "client_id": "886475354465-j5suema9gt5mhi2fhli0un9vsn1olvaa.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmwrXoeUa8qQ0OuxfYDUatiex85slYDzI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "886475354465-j5suema9gt5mhi2fhli0un9vsn1olvaa.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

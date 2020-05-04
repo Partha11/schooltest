@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#DA2A2A95</color>
+    <color name="colorPrimaryDark">#FFFFFF</color>
+    <color name="colorAccent">#03DAC5</color>
+    <color name="black_overlay">#B0000000</color>
+    <color name="edit_text_bg">#FFFFFF</color>
+    <color name="edit_text_hint">#999999</color>
+    <color name="edit_text_txt">#999999</color>
+    <color name="transparent">#00F5F5F5</color>
+    <color name="colorMyMessage">#68AFC7</color>
+    <color name="colorOtherMessage">#BFDCEB</color>
+    <color name="colorSplash">#3F51B5</color>
+    <color name="white">#FFFFFF</color>
+    <color name="yellow">#FFEB3B</color>
+</resources>
+
