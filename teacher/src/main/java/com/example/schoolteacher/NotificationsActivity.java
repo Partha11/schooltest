@@ -15,6 +15,7 @@ public class NotificationsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notifications);
 
@@ -32,30 +33,27 @@ public class NotificationsActivity extends AppCompatActivity {
         bottomNav.setSelectedItemId(R.id.bottomBarItemSecond);
 
 
-        bottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        bottomNav.setOnNavigationItemSelectedListener(item -> {
 
-                switch (item.getItemId()) {
-                    case R.id.bottomBarItemFirst:
-                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                        overridePendingTransition(0,0);
-                        break;
-                    case R.id.bottomBarItemSecond:
-                        startActivity(new Intent(getApplicationContext(), ClassActivity.class));
-                        overridePendingTransition(0, 0);
-                        break;
-                    case R.id.bottomBarItemThird:
-                        startActivity(new Intent(getApplicationContext(), MessageActivity.class));
-                        overridePendingTransition(0,0);
-                        break;
-                    case R.id.bottomBarItemFourth:
-                        break;
+            switch (item.getItemId()) {
 
-                }
-
-                return true;
+                case R.id.bottomBarItemFirst:
+                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                    overridePendingTransition(0,0);
+                    break;
+                case R.id.bottomBarItemSecond:
+                    startActivity(new Intent(getApplicationContext(), ClassActivity.class));
+                    overridePendingTransition(0, 0);
+                    break;
+                case R.id.bottomBarItemThird:
+                    startActivity(new Intent(getApplicationContext(), MessageActivity.class));
+                    overridePendingTransition(0,0);
+                    break;
+                case R.id.bottomBarItemFourth:
+                    break;
             }
+
+            return true;
         });
     }
 }

@@ -63,28 +63,25 @@ public class StreamActivity extends AppCompatActivity {
         BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
         bottomNav.setSelectedItemId(R.id.streamClass);
 
-        bottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        bottomNav.setOnNavigationItemSelectedListener(item -> {
 
-                switch (item.getItemId()) {
-                    case R.id.streamClass:
-                        break;
+            switch (item.getItemId()) {
+                case R.id.streamClass:
+                    break;
 
-                    case R.id.classwork:
-                        Intent intent = new Intent(getApplicationContext(), ClassworkActivity.class);
- //                       intent.putExtra("id",noteId );
-                        startActivity(intent);
-                        break;
-                    case R.id.people:
+                case R.id.classwork:
+                    Intent intent = new Intent(getApplicationContext(), ClassworkActivity.class);
+//                       intent.putExtra("id",noteId );
+                    startActivity(intent);
+                    break;
+                case R.id.people:
 
-                        Intent intent1 = new Intent(getApplicationContext(), PeopleActivity.class);
+                    Intent intent1 = new Intent(getApplicationContext(), PeopleActivity.class);
 //                        intent1.putExtra("id",noteId );
-                        startActivity(intent1);
-                        break;
-                }
-                return true;
+                    startActivity(intent1);
+                    break;
             }
+            return true;
         });
         // end bottom nav
 
@@ -111,31 +108,25 @@ public class StreamActivity extends AppCompatActivity {
 
         FloatingActionButton fab = findViewById(R.id.fabStream);
 
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        fab.setOnClickListener(view -> {
 
-                Intent intent = new Intent(getApplicationContext(), AddStreamActivity.class);
-                intent.putExtra("postId", noteId);
-                startActivity(intent);
-            }
+            Intent intent = new Intent(getApplicationContext(), AddStreamActivity.class);
+            intent.putExtra("postId", noteId);
+            startActivity(intent);
         });
 
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        listView.setOnItemClickListener((parent, view, position, id) -> {
 
-                PostClass postClass = postList.get(position);
-                Intent intent = new Intent(getApplicationContext(), StreamScreenActivity.class);
+            PostClass postClass = postList.get(position);
+            Intent intent = new Intent(getApplicationContext(), StreamScreenActivity.class);
 
-                intent.putExtra("postId", postClass.getPostId());
-                intent.putExtra("postTitle", postClass.getPostTitle());
-                intent.putExtra("post", postClass.getPost());
+            intent.putExtra("postId", postClass.getPostId());
+            intent.putExtra("postTitle", postClass.getPostTitle());
+            intent.putExtra("post", postClass.getPost());
 
-                startActivity(intent);
+            startActivity(intent);
 
-            }
         });
 
         // end stream

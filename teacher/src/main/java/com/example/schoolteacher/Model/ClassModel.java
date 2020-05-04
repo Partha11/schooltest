@@ -13,6 +13,7 @@ public class ClassModel {
     private List<Attendance> attendances;
     private List<Note> notes;
     private List<AssignClass> assignments;
+    private List<String> invites;
 
     public String getClassId() {
         return classId;
@@ -84,5 +85,13 @@ public class ClassModel {
 
     public void setAssignments(List<AssignClass> assignments) {
         this.assignments = assignments;
+    }
+
+    public List<String> getInvites() {
+        return invites;
+    }
+
+    public void setInvites(List<String> invites) {
+        this.invites = invites;
     }
 }

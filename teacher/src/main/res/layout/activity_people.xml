@@ -82,6 +82,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:background="@null">
+
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/peoplerv"
                     android:background="@null"

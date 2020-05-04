@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,6 +30,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
+
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -49,17 +52,14 @@ public class PeopleActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_people);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
 
         setSupportActionBar(toolbar);
-
-        ActionBar actionBar = this.getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
@@ -70,43 +70,39 @@ public class PeopleActivity extends AppCompatActivity {
         bottomNav.setSelectedItemId(R.id.people);
 
 
-        bottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        bottomNav.setOnNavigationItemSelectedListener(item -> {
 
-                switch (item.getItemId()) {
+            switch (item.getItemId()) {
 
-                     case R.id.streamClass:
-                         Intent streamIntent = new Intent(getApplicationContext(), StreamActivity.class);
-                         streamIntent.putExtra("id",noteId );
-                         streamIntent.putExtra("userIds", userIds);
-                         startActivity(streamIntent);
-                            break;
+                case R.id.streamClass:
+                    Intent streamIntent = new Intent(getApplicationContext(), StreamActivity.class);
+                    streamIntent.putExtra("id",noteId );
+                    streamIntent.putExtra("userIds", userIds);
+                    startActivity(streamIntent);
+                    break;
 
-                    case R.id.classwork:
-                        Intent intent = new Intent(getApplicationContext(), ClassworkActivity.class);
-                        intent.putExtra("id",noteId );
-                        startActivity(intent);
-                        break;
+                case R.id.classwork:
+                    Intent intent = new Intent(getApplicationContext(), ClassworkActivity.class);
+                    intent.putExtra("id",noteId );
+                    startActivity(intent);
+                    break;
 
-                    case R.id.people:
-                        break;
-                }
-                return true;
+                case R.id.people:
+                    break;
             }
+
+            return true;
         });
 
 
 
         addParentBtn = findViewById(R.id.studentBTN);
-        addParentBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent parentIntent = new Intent(getApplicationContext(), FindParentActivity.class);
-                parentIntent.putExtra("id",noteId );
-                startActivity(parentIntent);
-                overridePendingTransition(0, 0);
-            }
+        addParentBtn.setOnClickListener(v -> {
+
+            Intent parentIntent = new Intent(getApplicationContext(), FindParentActivity.class);
+            parentIntent.putExtra("id", noteId);
+            startActivity(parentIntent);
+            overridePendingTransition(0, 0);
         });
 
         // start
@@ -121,38 +117,39 @@ public class PeopleActivity extends AppCompatActivity {
         usersRef = FirebaseDatabase.getInstance().getReference().child("Users");
         peopleList = findViewById(R.id.peoplerv);
         peopleList.setLayoutManager(new LinearLayoutManager(PeopleActivity.this));
-
-
-
     }
 
-
-
-    // start message activ
     @Override
     public void onStart() {
+
         super.onStart();
+
         FirebaseRecyclerOptions<Contacts> options = new FirebaseRecyclerOptions.Builder<Contacts>()
                 .setQuery(contactsClassRef, Contacts.class)
                 .build();
 
-
         FirebaseRecyclerAdapter<Contacts, PeopleActivity.PeopleViewHolder> adapter =
                 new FirebaseRecyclerAdapter<Contacts, PeopleActivity.PeopleViewHolder>(options) {
+
                     @Override
                     protected void onBindViewHolder(@NonNull final PeopleViewHolder holder, int position, @NonNull Contacts model) {
+
                         final String userIds = getRef(position).getKey();
                         final String [] profileImage = {"default"};
+
                         usersRef.child(userIds).addValueEventListener(new ValueEventListener() {
+
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                if(dataSnapshot.hasChild("image")){
-                                    profileImage[0] = dataSnapshot.child("image").getValue().toString();
+
+                                if(dataSnapshot.hasChild("image")) {
+
+                                    profileImage[0] = Objects.requireNonNull(dataSnapshot.child("image").getValue()).toString();
                                     Picasso.get().load(profileImage[0]).placeholder(R.drawable.avatar).into(holder.profileImage);
                                 }
 
-                                final String userName = dataSnapshot.child("name").getValue().toString();
-                                final String status = dataSnapshot.child("status").getValue().toString();
+                                final String userName = Objects.requireNonNull(dataSnapshot.child("name").getValue()).toString();
+                                final String status = Objects.requireNonNull(dataSnapshot.child("status").getValue()).toString();
                                 holder.userName.setText(userName);
                                 holder.userStatus.setText(status);
 
@@ -161,27 +158,32 @@ public class PeopleActivity extends AppCompatActivity {
                             @Override
                             public void onCancelled(@NonNull DatabaseError databaseError) {
 
+                                Log.d("Error", databaseError.getMessage());
                             }
                         });
-
                     }
 
                     @NonNull
                     @Override
                     public PeopleActivity.PeopleViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-                        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.people_display_layout, viewGroup, false);
+
+                        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.people_display_layout,
+                                viewGroup, false);
                         return new PeopleActivity.PeopleViewHolder(view);
                     }
                 };
+
         peopleList.setAdapter(adapter);
         adapter.startListening();
     }
 
-    public static class PeopleViewHolder extends RecyclerView.ViewHolder{
+    public static class PeopleViewHolder extends RecyclerView.ViewHolder {
+
         CircleImageView profileImage;
         TextView userStatus, userName;
 
-        public PeopleViewHolder(@NonNull View itemView) {
+        PeopleViewHolder(@NonNull View itemView) {
+
             super(itemView);
             profileImage = itemView.findViewById(R.id.users_profile_image);
             userStatus = itemView.findViewById(R.id.users_status);
