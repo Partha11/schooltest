@@ -1,5 +1,6 @@
 package com.example.schoolteacher.Adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -87,6 +88,9 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
             acceptButton.setVisibility(View.VISIBLE);
             cancelButton.setVisibility(View.VISIBLE);
+
+            acceptButton.setOnClickListener(this);
+            cancelButton.setOnClickListener(this);
         }
 
         @Override
@@ -99,13 +103,21 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                     case R.id.requests_accept_btn:
 
                         listener.onAccepted(contacts.get(getAdapterPosition()).getClassId());
+                        contacts.remove(getAdapterPosition());
+                        notifyDataSetChanged();
                         break;
 
                     case R.id.requests_cancel_btn:
 
                         listener.onRejected(contacts.get(getAdapterPosition()).getClassId());
+                        contacts.remove(getAdapterPosition());
+                        notifyDataSetChanged();
                         break;
                 }
+
+            } else {
+
+                Log.d("Adapter", "Listener null");
             }
         }
     }

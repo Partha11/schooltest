@@ -1,23 +1,20 @@
 package com.example.schoolteacher;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.provider.Settings;
+import android.util.Log;
+import android.view.View;
+import android.widget.ListView;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.provider.Settings;
-import android.util.Log;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.TextView;
-
 import com.example.schoolteacher.Adapter.NoteAdapter;
 import com.example.schoolteacher.Model.ClassModel;
-import com.example.schoolteacher.Model.NoteClass;
 import com.example.schoolteacher.login.LoginActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -28,18 +25,15 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SectionDrawerItem;
-import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 public class ClassActivity extends AppCompatActivity {
 
@@ -55,7 +49,7 @@ public class ClassActivity extends AppCompatActivity {
     AlertDialog dialog;
 
     private FirebaseAuth mFirebaseAuth;
-    private FirebaseUser mCurrentUser;
+    private FirebaseUser currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,37 +69,30 @@ public class ClassActivity extends AppCompatActivity {
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
         bottomNav.setSelectedItemId(R.id.bottomBarItemSecond);
 
-        bottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        bottomNav.setOnNavigationItemSelectedListener(item -> {
 
-                switch (item.getItemId()) {
-                    case R.id.bottomBarItemFirst:
-                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                        overridePendingTransition(0,0);
-                        break;
-                    case R.id.bottomBarItemSecond:
+            switch (item.getItemId()) {
+                case R.id.bottomBarItemFirst:
+                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                    overridePendingTransition(0,0);
+                    break;
+                case R.id.bottomBarItemSecond:
 
-                        break;
-                    case R.id.bottomBarItemThird:
-                        startActivity(new Intent(getApplicationContext(), MessageActivity.class));
-                        overridePendingTransition(0,0);
-                        break;
-                    case R.id.bottomBarItemFourth:
-                        startActivity(new Intent(getApplicationContext(), NotificationsActivity.class));
-                        overridePendingTransition(0,0);
-                        break;
+                    break;
+                case R.id.bottomBarItemThird:
+                    startActivity(new Intent(getApplicationContext(), MessageActivity.class));
+                    overridePendingTransition(0,0);
+                    break;
+                case R.id.bottomBarItemFourth:
+                    startActivity(new Intent(getApplicationContext(), NotificationsActivity.class));
+                    overridePendingTransition(0,0);
+                    break;
 
-                }
-
-                return true;
             }
+
+            return true;
         });
 
-
-        // Initialize Firebase Auth
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        mCurrentUser = mFirebaseAuth.getCurrentUser();
 
         //Navigation drawer
         new DrawerBuilder().withActivity(this).build();
@@ -177,40 +164,38 @@ public class ClassActivity extends AppCompatActivity {
                         logout
 
                 )
-                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-                    @Override
-                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                        if (drawerItem != null) {
-                            Intent intent = null;
-                            if (drawerItem.getIdentifier() == 1) {
-                                intent = new Intent(ClassActivity.this, ProfileInfoActivity.class);
-                            } else if (drawerItem.getIdentifier() == 2) {
-                                //intent = new Intent(MainActivity.this, Class.class);
-                            } else if (drawerItem.getIdentifier() == 3) {
-                                //intent = new Intent(MainActivity.this, Class.class);
-                            } else if (drawerItem.getIdentifier() == 11) {
-                                //intent = new Intent(MainActivity.this, Class.class);
-                            } else if (drawerItem.getIdentifier() == 12) {
-                                //intent = new Intent(MainActivity.this, Class.class);
-                            } else if (drawerItem.getIdentifier() == 13) {
-                                //intent = new Intent(MainActivity.this, Class.class);
-                            } else if (drawerItem.getIdentifier() == 97) {
-                                intent = new Intent(ClassActivity.this, Settings.class);
-                            } else if (drawerItem.getIdentifier() == 98) {
-                                intent = new Intent(ClassActivity.this, About.class);
-                            } else if (drawerItem.getIdentifier() == 99) {
-                                FirebaseAuth.getInstance().signOut();
-                                sendToStart();
-                                overridePendingTransition(0, 0);
+                .withOnDrawerItemClickListener((view, position, drawerItem) -> {
 
-                            }
-                            if (intent != null) {
-                                ClassActivity.this.startActivity(intent);
-                            }
+                    if (drawerItem != null) {
+                        Intent intent = null;
+                        if (drawerItem.getIdentifier() == 1) {
+                            intent = new Intent(ClassActivity.this, ProfileInfoActivity.class);
+                        } else if (drawerItem.getIdentifier() == 2) {
+                            //intent = new Intent(MainActivity.this, Class.class);
+                        } else if (drawerItem.getIdentifier() == 3) {
+                            //intent = new Intent(MainActivity.this, Class.class);
+                        } else if (drawerItem.getIdentifier() == 11) {
+                            //intent = new Intent(MainActivity.this, Class.class);
+                        } else if (drawerItem.getIdentifier() == 12) {
+                            //intent = new Intent(MainActivity.this, Class.class);
+                        } else if (drawerItem.getIdentifier() == 13) {
+                            //intent = new Intent(MainActivity.this, Class.class);
+                        } else if (drawerItem.getIdentifier() == 97) {
+                            intent = new Intent(ClassActivity.this, Settings.class);
+                        } else if (drawerItem.getIdentifier() == 98) {
+                            intent = new Intent(ClassActivity.this, About.class);
+                        } else if (drawerItem.getIdentifier() == 99) {
+                            FirebaseAuth.getInstance().signOut();
+                            sendToStart();
+                            overridePendingTransition(0, 0);
+
                         }
-
-                        return false;
+                        if (intent != null) {
+                            ClassActivity.this.startActivity(intent);
+                        }
                     }
+
+                    return false;
                 })
                 .build();
         //End of Navigation drawer
@@ -219,43 +204,27 @@ public class ClassActivity extends AppCompatActivity {
         // Classes (notes for now)
 
         listView = findViewById(R.id.listView);
-
         classlist = new ArrayList<>();
-
         tvNoteCount = findViewById(R.id.tvNoteCount);
-
         userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
 
         firebaseDatabase = FirebaseDatabase.getInstance();
         myRef = firebaseDatabase.getReference("Notes");
 
+        listView.setOnItemClickListener((parent, view, position, noteId) -> {
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            ClassModel mClass = classlist.get(position);
+            Intent intent = new Intent(getApplicationContext(), ClassworkActivity.class);
 
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long noteId) {
+            intent.putExtra("id", mClass.getClassId());
+            intent.putExtra("noteTitle", mClass.getClassName());
+            intent.putExtra("note", mClass.getDescription());
 
-                ClassModel mClass = classlist.get(position);
-                Intent intent = new Intent(getApplicationContext(), ClassworkActivity.class);
-
-                intent.putExtra("id", mClass.getClassId());
-                intent.putExtra("noteTitle", mClass.getClassName());
-                intent.putExtra("note", mClass.getDescription());
-
-                startActivity(intent);
-            }
+            startActivity(intent);
         });
 
         FloatingActionButton fab = findViewById(R.id.fab);
-
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                startActivity(new Intent(getApplicationContext(), AddNoteActivity.class));
-            }
-        });
+        fab.setOnClickListener(view -> startActivity(new Intent(getApplicationContext(), AddNoteActivity.class)));
     }
 
 
@@ -263,15 +232,13 @@ public class ClassActivity extends AppCompatActivity {
     protected void onStart() {
 
         super.onStart();
-        FirebaseUser currentUser = mFirebaseAuth.getCurrentUser();
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
         if (currentUser == null) {
 
             sendToStart();
             return;
         }
-
-        Log.d("User", Objects.requireNonNull(currentUser.getEmail()));
 
         getDataForFirebase();
     }
@@ -327,6 +294,5 @@ public class ClassActivity extends AppCompatActivity {
                 Log.d("Error", databaseError.getMessage());
             }
         });
-
     }
 }

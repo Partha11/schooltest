@@ -21,23 +21,15 @@ import com.example.schoolteacher.R;
 import com.example.schoolteacher.ResetPasswordActivity;
 import com.example.schoolteacher.SplashActivity;
 import com.example.schoolteacher.parents.MainParentsActivity;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.shobhitpuri.custombuttons.GoogleSignInButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,19 +70,20 @@ public class LoginActivity extends AppCompatActivity {
 
         //check the current user
         if (mAuth.getCurrentUser() != null) {
-            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+
+            startActivity(new Intent(LoginActivity.this, MainParentsActivity.class));
             finish();
             overridePendingTransition(0, 0);
         }
 
         setContentView(R.layout.activity_login);
 
-        inputEmail = (EditText) findViewById(R.id.et_email_address);
-        inputPassword = (EditText) findViewById(R.id.et_password);
-        final Button ahlogin = (Button) findViewById(R.id.login_btn);
-        progressBar = (ProgressBar) findViewById(R.id.loading_spinner);
+        inputEmail = findViewById(R.id.et_email_address);
+        inputPassword = findViewById(R.id.et_password);
+        final Button ahlogin = findViewById(R.id.login_btn);
+        progressBar = findViewById(R.id.loading_spinner);
         TextView btnForgot = findViewById(R.id.forgot);
-        TextView btnSignUp = (TextView) findViewById(R.id.signup_here_Button);
+        TextView btnSignUp = findViewById(R.id.signup_here_Button);
 
         mViewHelper = findViewById(R.id.view_helper);
 
@@ -120,72 +113,57 @@ public class LoginActivity extends AppCompatActivity {
 
 
 
-        btnSignUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(LoginActivity.this, SignupActivity.class));
-            }
-        });
+        btnSignUp.setOnClickListener(v -> startActivity(new Intent(LoginActivity.this, SignupActivity.class)));
 
-        btnForgot.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(LoginActivity.this, ResetPasswordActivity.class));
-            }
-        });
+        btnForgot.setOnClickListener(v -> startActivity(new Intent(LoginActivity.this, ResetPasswordActivity.class)));
 
 
         mAuth = FirebaseAuth.getInstance();
 
         // Checking the email id and password is Empty
-        ahlogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String email = inputEmail.getText().toString();
-                final String password = inputPassword.getText().toString();
-                String item = signUpUserType.getSelectedItem().toString();
+        ahlogin.setOnClickListener(v -> {
 
-                if (TextUtils.isEmpty(email)) {
-                    Toast.makeText(getApplicationContext(), "Email is required.", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if (TextUtils.isEmpty(password)) {
-                    Toast.makeText(getApplicationContext(), "Enter Password", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if(password.length() < 6) {
-                    inputPassword.setError("Password Must be >= 6 Characters");
-                    return;
-                } loginrUser(email, password, item);
+            String email = inputEmail.getText().toString();
+            final String password = inputPassword.getText().toString();
+            String item = signUpUserType.getSelectedItem().toString();
 
-
-                progressBar.setVisibility(View.VISIBLE);
-                mViewHelper.setVisibility(View.VISIBLE);
-                ahlogin.setVisibility(View.INVISIBLE);
-
-
+            if (TextUtils.isEmpty(email)) {
+                Toast.makeText(getApplicationContext(), "Email is required.", Toast.LENGTH_SHORT).show();
+                return;
             }
+            if (TextUtils.isEmpty(password)) {
+                Toast.makeText(getApplicationContext(), "Enter Password", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if(password.length() < 6) {
+                inputPassword.setError("Password Must be >= 6 Characters");
+                return;
+            } loginrUser(email, password, item);
+
+
+            progressBar.setVisibility(View.VISIBLE);
+            mViewHelper.setVisibility(View.VISIBLE);
+            ahlogin.setVisibility(View.INVISIBLE);
+
 
         });
 
 
-        mAuthListner = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if (firebaseAuth.getCurrentUser() != null && userType.equals("Teacher")) {
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION );
-                    overridePendingTransition(0, 0);
+        mAuthListner = firebaseAuth -> {
 
-                } else if (firebaseAuth.getCurrentUser() != null && userType.equals("Parent")) {
-                    Intent intent = new Intent(LoginActivity.this, MainParentsActivity.class);
-                    startActivity(intent);
-                    finish();
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION );
-                    overridePendingTransition(0, 0);
-                }
+            if (firebaseAuth.getCurrentUser() != null && userType.equals("Teacher")) {
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION );
+                overridePendingTransition(0, 0);
+
+            } else if (firebaseAuth.getCurrentUser() != null && userType.equals("Parent")) {
+                Intent intent = new Intent(LoginActivity.this, MainParentsActivity.class);
+                startActivity(intent);
+                finish();
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION );
+                overridePendingTransition(0, 0);
             }
         };
 
@@ -195,7 +173,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void loginrUser(String email, String password, final String item) {
 
-        final Button ahlogin = (Button) findViewById(R.id.login_btn);
+        final Button ahlogin = findViewById(R.id.login_btn);
 
 
         //authenticate user

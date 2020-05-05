@@ -1,12 +1,5 @@
 package com.example.schoolteacher.parents;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -15,8 +8,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.schoolteacher.login.LoginActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.viewpager.widget.ViewPager;
+
 import com.example.schoolteacher.R;
+import com.example.schoolteacher.login.LoginActivity;
 import com.example.schoolteacher.parents.Adapter.SectionPagerAdapter;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.tabs.TabLayout;
@@ -68,35 +66,32 @@ public class MainParentsActivity extends AppCompatActivity {
 
         //bottom nav
 
-        bottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        bottomNav.setOnNavigationItemSelectedListener(item -> {
 
-                switch (item.getItemId()) {
-                    case R.id.navigation_class:
-                        startActivity(new Intent(getApplicationContext(), MainParentsActivity.class));
-                        overridePendingTransition(0, 0);
-                        break;
-                    case R.id.navigation_due:
-                        startActivity(new Intent(getApplicationContext(), DueParentsActivity.class));
-                        overridePendingTransition(0, 0);
-                        break;
-                    case R.id.navigation_messages:
-                        startActivity(new Intent(getApplicationContext(), MessageParentActivity.class));
-                        overridePendingTransition(0, 0);
-                        break;
-                    case R.id.navigation_explore:
-                        startActivity(new Intent(getApplicationContext(), ExploreParentActivity.class));
-                        overridePendingTransition(0, 0);
-                        break;
-                    case R.id.navigation_notifications:
-                        startActivity(new Intent(getApplicationContext(), RequestParentActivity.class));
-                        overridePendingTransition(0, 0);
-                        break;
-                }
-
-                return true;
+            switch (item.getItemId()) {
+                case R.id.navigation_class:
+                    startActivity(new Intent(getApplicationContext(), MainParentsActivity.class));
+                    overridePendingTransition(0, 0);
+                    break;
+                case R.id.navigation_due:
+                    startActivity(new Intent(getApplicationContext(), DueParentsActivity.class));
+                    overridePendingTransition(0, 0);
+                    break;
+                case R.id.navigation_messages:
+                    startActivity(new Intent(getApplicationContext(), MessageParentActivity.class));
+                    overridePendingTransition(0, 0);
+                    break;
+                case R.id.navigation_explore:
+                    startActivity(new Intent(getApplicationContext(), ExploreParentActivity.class));
+                    overridePendingTransition(0, 0);
+                    break;
+                case R.id.navigation_notifications:
+                    startActivity(new Intent(getApplicationContext(), RequestParentActivity.class));
+                    overridePendingTransition(0, 0);
+                    break;
             }
+
+            return true;
         });
 
 
@@ -232,16 +227,11 @@ public class MainParentsActivity extends AppCompatActivity {
 
 
     private void sendToStart() {
+
         Intent startIntent = new Intent(MainParentsActivity.this, LoginActivity.class);
         startActivity(startIntent);
         finish();
     }
-
-
-
-
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -278,21 +268,7 @@ public class MainParentsActivity extends AppCompatActivity {
     }
 
     public void displayToast(String message) {
-        Toast.makeText(getApplicationContext(), message,
-                Toast.LENGTH_SHORT).show();
+
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

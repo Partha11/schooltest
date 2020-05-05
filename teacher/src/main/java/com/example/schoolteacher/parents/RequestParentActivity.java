@@ -1,41 +1,37 @@
 package com.example.schoolteacher.parents;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.schoolteacher.Adapter.NotificationAdapter;
+import com.example.schoolteacher.Model.ClassModel;
 import com.example.schoolteacher.Model.Contacts;
+import com.example.schoolteacher.Model.NotificationModel;
 import com.example.schoolteacher.R;
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.Picasso;
 
-import de.hdodenhof.circleimageview.CircleImageView;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
-public class RequestParentActivity extends AppCompatActivity {
+public class RequestParentActivity extends AppCompatActivity implements NotificationAdapter.InvitationActionListener {
 
     //    private LinearLayoutManager linearLayoutManager;
     private View requestsFragmentView;
@@ -48,6 +44,15 @@ public class RequestParentActivity extends AppCompatActivity {
     String userID;
 
     String noteId;
+
+    //RecyclerView
+
+    private FirebaseUser user;
+    private DatabaseReference reference;
+
+    private List<NotificationModel> notifications;
+
+    private NotificationAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,33 +73,30 @@ public class RequestParentActivity extends AppCompatActivity {
 
         //bottom nav
 
-        bottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        bottomNav.setOnNavigationItemSelectedListener(item -> {
 
-                switch (item.getItemId()) {
-                    case R.id.navigation_class:
-                        startActivity(new Intent(getApplicationContext(), MainParentsActivity.class));
-                        overridePendingTransition(0, 0);
-                        break;
-                    case R.id.navigation_due:
-                        startActivity(new Intent(getApplicationContext(), DueParentsActivity.class));
-                        overridePendingTransition(0, 0);
-                        break;
-                    case R.id.navigation_messages:
-                        startActivity(new Intent(getApplicationContext(), MessageParentActivity.class));
-                        overridePendingTransition(0, 0);
-                        break;
-                    case R.id.navigation_explore:
-                        startActivity(new Intent(getApplicationContext(), ExploreParentActivity.class));
-                        overridePendingTransition(0, 0);
-                        break;
-                    case R.id.navigation_notifications:
-                        break;
-                }
-
-                return true;
+            switch (item.getItemId()) {
+                case R.id.navigation_class:
+                    startActivity(new Intent(getApplicationContext(), MainParentsActivity.class));
+                    overridePendingTransition(0, 0);
+                    break;
+                case R.id.navigation_due:
+                    startActivity(new Intent(getApplicationContext(), DueParentsActivity.class));
+                    overridePendingTransition(0, 0);
+                    break;
+                case R.id.navigation_messages:
+                    startActivity(new Intent(getApplicationContext(), MessageParentActivity.class));
+                    overridePendingTransition(0, 0);
+                    break;
+                case R.id.navigation_explore:
+                    startActivity(new Intent(getApplicationContext(), ExploreParentActivity.class));
+                    overridePendingTransition(0, 0);
+                    break;
+                case R.id.navigation_notifications:
+                    break;
             }
+
+            return true;
         });
 
 
@@ -109,30 +111,169 @@ public class RequestParentActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         currentUserId = mAuth.getCurrentUser().getUid();
         classRequestRef = FirebaseDatabase.getInstance().getReference()
-                .child("Class Requests"); // Class Requests
+                .child("Notifications"); // Class Requests
         userRef = FirebaseDatabase.getInstance().getReference().child("Users");
         contactsClassRef = FirebaseDatabase.getInstance().getReference()
                 .child("Class Contacts"); // Class Contacts
-        classRequestsList = findViewById(R.id.class_requests_list); // class request list
+         // class request list
 
         //       linearLayoutManager = new LinearLayoutManager(this);
-        classRequestsList.setLayoutManager(new LinearLayoutManager(this));
+//        classRequestsList.setLayoutManager(new LinearLayoutManager(this));
 
+        initialize();
+    }
+
+    private void initialize() {
+
+        notifications = new ArrayList<>();
+        adapter = new NotificationAdapter();
+        user = FirebaseAuth.getInstance().getCurrentUser();
+
+        classRequestsList = findViewById(R.id.class_requests_list);
+
+        if (user != null) {
+
+            reference = FirebaseDatabase.getInstance().getReference();
+
+        } else {
+
+            reference = null;
+        }
+
+        adapter.setListener(this);
+        classRequestsList.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
+        classRequestsList.setItemAnimator(new DefaultItemAnimator());
+        classRequestsList.setAdapter(adapter);
+
+        loadClassRequests();
+    }
+
+    private void loadClassRequests() {
+
+        if (reference == null) {
+
+            Toast.makeText(this, "Session expired", Toast.LENGTH_SHORT).show();
+
+        } else {
+
+            reference.child("Notifications").child(user.getUid()).addValueEventListener(new ValueEventListener() {
+
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                    notifications.clear();
+
+                    for (DataSnapshot d : dataSnapshot.getChildren()) {
+
+                        NotificationModel notification = d.getValue(NotificationModel.class);
+                        notifications.add(notification);
+                    }
+
+                    getContactsFromNotification(notifications);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    Log.d("Error", databaseError.getMessage());
+                }
+            });
+        }
+    }
+
+    private void getContactsFromNotification(List<NotificationModel> notifications) {
+
+        adapter.clearList();
+
+        for (NotificationModel notification: notifications) {
+
+            reference.child("Users").child(notification.getFrom()).addListenerForSingleValueEvent(new ValueEventListener() {
+
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                    Contacts contact = dataSnapshot.getValue(Contacts.class);
+
+                    if (contact != null) {
+
+                        contact.setClassId(notification.getClassId());
+                        adapter.addContact(contact);
+
+                        Log.d("SIze", adapter.getItemCount() + "");
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    Log.d("Error", databaseError.getMessage());
+                }
+            });
+        }
+    }
+
+    private void removeNotification(String classId) {
+
+        if (reference != null) {
+
+            reference.child("Notes").child(classId).child("Invites").child(user.getUid()).removeValue();
+            reference.child("Notifications").child(user.getUid()).child(classId).removeValue();
+        }
+    }
+
+    @Override
+    public void onAccepted(String classId) {
+
+        reference.child("Notes").child(classId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                ClassModel mClass = dataSnapshot.getValue(ClassModel.class);
+
+                if (mClass != null) {
+
+                    HashMap<String, Long> data = new HashMap<>();
+                    data.put("joinedAt", System.currentTimeMillis());
+
+                    mClass.setClassFollowers(mClass.getClassFollowers() + 1);
+                    reference.child("Notes").child(classId).child("classFollowers").setValue(mClass.getClassFollowers());
+                    reference.child("Notes").child(classId).child("memberList").setValue(data);
+                    reference.child("Users").child(user.getUid()).child("Classes").child(classId).setValue(data);
+
+                    removeNotification(classId);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                Log.d("Error", databaseError.getMessage());
+            }
+        });
+    }
+
+    @Override
+    public void onRejected(String classId) {
+
+        removeNotification(classId);
     }
 
 
 
-    @Override
+/*    @Override
     public void onStart() {
+
         super.onStart();
 
-        FirebaseRecyclerOptions<Contacts> options =
-                new FirebaseRecyclerOptions.Builder<Contacts>()
+        FirebaseRecyclerOptions<Contacts> options = new FirebaseRecyclerOptions.Builder<Contacts>()
                         .setQuery(classRequestRef.child(currentUserId), Contacts.class)
                         .build();
 
         final FirebaseRecyclerAdapter<Contacts, RequestParentActivity.RequestsViewHolder> adapter =
                 new FirebaseRecyclerAdapter<Contacts, RequestParentActivity.RequestsViewHolder>(options) {
+
                     @Override
                     protected void onBindViewHolder(@NonNull final RequestParentActivity.RequestsViewHolder holder, int position, @NonNull Contacts model) {
                         holder.itemView.findViewById(R.id.requests_accept_btn).setVisibility(View.VISIBLE);
@@ -171,37 +312,37 @@ public class RequestParentActivity extends AppCompatActivity {
                                                 holder.itemView.findViewById(R.id.requests_accept_btn)
                                                         .setOnClickListener(v -> contactsClassRef.child(currentUserId).child(listUserId).child("Class Contact")
                                                                 .setValue("Saved").addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                            @Override
-                                                            public void onComplete(@NonNull Task<Void> task) {
-                                                                if(task.isSuccessful()){
-                                                                    contactsClassRef.child(listUserId).child(currentUserId).child("Class Contact")
-                                                                            .setValue("Saved").addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                        @Override
-                                                                        public void onComplete(@NonNull Task<Void> task) {
-                                                                            if(task.isSuccessful()){
-                                                                                classRequestRef.child(currentUserId).child(listUserId)
-                                                                                        .removeValue()
-                                                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                            @Override
-                                                                                            public void onComplete(@NonNull Task<Void> task) {
-                                                                                                if(task.isSuccessful()){
-                                                                                                    classRequestRef.child(listUserId).child(currentUserId)
-                                                                                                            .removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                                        @Override
-                                                                                                        public void onComplete(@NonNull Task<Void> task) {
-                                                                                                            Toast.makeText(RequestParentActivity.this, "Class Access Granted",Toast.LENGTH_SHORT).show();
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                                        if(task.isSuccessful()){
+                                                                            contactsClassRef.child(listUserId).child(currentUserId).child("Class Contact")
+                                                                                    .setValue("Saved").addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                                @Override
+                                                                                public void onComplete(@NonNull Task<Void> task) {
+                                                                                    if(task.isSuccessful()){
+                                                                                        classRequestRef.child(currentUserId).child(listUserId)
+                                                                                                .removeValue()
+                                                                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                                                    @Override
+                                                                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                                                                        if(task.isSuccessful()){
+                                                                                                            classRequestRef.child(listUserId).child(currentUserId)
+                                                                                                                    .removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                                                                @Override
+                                                                                                                public void onComplete(@NonNull Task<Void> task) {
+                                                                                                                    Toast.makeText(RequestParentActivity.this, "Class Access Granted",Toast.LENGTH_SHORT).show();
+                                                                                                                }
+                                                                                                            });
                                                                                                         }
-                                                                                                    });
-                                                                                                }
-                                                                                            }
-                                                                                        });
-                                                                            }
-                                                                        }
-                                                                    });
+                                                                                                    }
+                                                                                                });
+                                                                                    }
+                                                                                }
+                                                                            });
 
-                                                                }
-                                                            }
-                                                        }));
+                                                                        }
+                                                                    }
+                                                                }));
 
                                                 holder.itemView.findViewById(R.id.requests_cancel_btn).setOnClickListener(new View.OnClickListener() {
                                                     @Override
@@ -388,6 +529,7 @@ public class RequestParentActivity extends AppCompatActivity {
                         return holder;
                     }
                 };
+
         classRequestsList.setAdapter(adapter);
         adapter.startListening();
     }
@@ -405,7 +547,7 @@ public class RequestParentActivity extends AppCompatActivity {
             cancelButton = (Button)itemView.findViewById(R.id.requests_cancel_btn);
 
         }
-    }
+    }*/
 
 
 }
