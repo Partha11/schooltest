@@ -130,9 +130,10 @@ public class ParentProfileActivity extends AppCompatActivity {
 
                     HashMap<String, String> classNotificationMap = new HashMap<>();
                     classNotificationMap.put("from", senderClassUserId);
+                    classNotificationMap.put("classId", classId);
                     classNotificationMap.put("type", "request");
 
-                    notificationRef.child(parentUid).push().setValue(classNotificationMap);
+                    notificationRef.child(parentUid).child(classId).setValue(classNotificationMap);
                     sendClassRequestButton.setText(R.string.req_sent);
                 }
             });

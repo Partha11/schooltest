@@ -1,12 +1,5 @@
 package com.example.schoolteacher.parents;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,9 +11,15 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.schoolteacher.Model.Contacts;
 import com.example.schoolteacher.R;
-import com.example.schoolteacher.RequestsActivity;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -142,15 +141,23 @@ public class RequestParentActivity extends AppCompatActivity {
                         final String listUserId = getRef(position).getKey();
                         DatabaseReference getTypeRef = getRef(position).child("requestType").getRef();
                         getTypeRef.addValueEventListener(new ValueEventListener() {
+
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                if(dataSnapshot.exists()){
+
+                                if (dataSnapshot.exists()) {
+
                                     String type = dataSnapshot.getValue().toString();
-                                    if(type.equals("received")){
+
+                                    if (type.equals("received")) {
+
                                         userRef.child(listUserId).addValueEventListener(new ValueEventListener() {
+
                                             @Override
                                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
                                                 if(dataSnapshot.hasChild("image")){
+
                                                     final String requestProfileImage = dataSnapshot.child("image").getValue().toString();
                                                     Picasso.get().load(requestProfileImage).placeholder(R.drawable.avatar).into(holder.profileImage);
                                                 }
@@ -162,44 +169,39 @@ public class RequestParentActivity extends AppCompatActivity {
 
                                                 //test onClick Button accept or decline
                                                 holder.itemView.findViewById(R.id.requests_accept_btn)
-                                                        .setOnClickListener(new View.OnClickListener() {
+                                                        .setOnClickListener(v -> contactsClassRef.child(currentUserId).child(listUserId).child("Class Contact")
+                                                                .setValue("Saved").addOnCompleteListener(new OnCompleteListener<Void>() {
                                                             @Override
-                                                            public void onClick(View v) {
-                                                                contactsClassRef.child(currentUserId).child(listUserId).child("Class Contact")
-                                                                        .setValue("Saved").addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                    @Override
-                                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                                        if(task.isSuccessful()){
-                                                                            contactsClassRef.child(listUserId).child(currentUserId).child("Class Contact")
-                                                                                    .setValue("Saved").addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                @Override
-                                                                                public void onComplete(@NonNull Task<Void> task) {
-                                                                                    if(task.isSuccessful()){
-                                                                                        classRequestRef.child(currentUserId).child(listUserId)
-                                                                                                .removeValue()
-                                                                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                                    @Override
-                                                                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                                                                        if(task.isSuccessful()){
-                                                                                                            classRequestRef.child(listUserId).child(currentUserId)
-                                                                                                                    .removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                                                @Override
-                                                                                                                public void onComplete(@NonNull Task<Void> task) {
-                                                                                                                    Toast.makeText(RequestParentActivity.this, "Class Access Granted",Toast.LENGTH_SHORT).show();
-                                                                                                                }
-                                                                                                            });
+                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                if(task.isSuccessful()){
+                                                                    contactsClassRef.child(listUserId).child(currentUserId).child("Class Contact")
+                                                                            .setValue("Saved").addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                        @Override
+                                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                                            if(task.isSuccessful()){
+                                                                                classRequestRef.child(currentUserId).child(listUserId)
+                                                                                        .removeValue()
+                                                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                                            @Override
+                                                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                                                if(task.isSuccessful()){
+                                                                                                    classRequestRef.child(listUserId).child(currentUserId)
+                                                                                                            .removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                                                        @Override
+                                                                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                                                                            Toast.makeText(RequestParentActivity.this, "Class Access Granted",Toast.LENGTH_SHORT).show();
                                                                                                         }
-                                                                                                    }
-                                                                                                });
-                                                                                    }
-                                                                                }
-                                                                            });
-
+                                                                                                    });
+                                                                                                }
+                                                                                            }
+                                                                                        });
+                                                                            }
                                                                         }
-                                                                    }
-                                                                });
+                                                                    });
+
+                                                                }
                                                             }
-                                                        });
+                                                        }));
 
                                                 holder.itemView.findViewById(R.id.requests_cancel_btn).setOnClickListener(new View.OnClickListener() {
                                                     @Override

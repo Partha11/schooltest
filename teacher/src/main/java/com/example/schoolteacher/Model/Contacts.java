@@ -2,39 +2,50 @@ package com.example.schoolteacher.Model;
 
 public class Contacts {
 
-        public Contacts() {
-        }
+    private String classId;
 
-        public Contacts(String name, String status, String image) {
-            this.name = name;
-            this.status = status;
-            this.image = image;
-        }
+    public Contacts() {
+        //Empty
+    }
 
-        public String name, status, image;
+    public Contacts(String name, String status, String image) {
 
-        public String getName() {
-            return name;
-        }
+        this.name = name;
+        this.status = status;
+        this.image = image;
+    }
 
-        public void setName(String name) {
-            this.name = name;
-        }
+    public String name, status, image;
 
-        public String getStatus() {
-            return status;
-        }
+    public String getClassId() {
+        return classId;
+    }
 
-        public void setStatus(String status) {
-            this.status = status;
-        }
+    public void setClassId(String classId) {
+        this.classId = classId;
+    }
 
-        public String getImage() {
-            return image;
-        }
+    public String getName() {
+        return name;
+    }
 
-        public void setImage(String image) {
-            this.image = image;
-        }
+    public void setName(String name) {
+        this.name = name;
+    }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
 }

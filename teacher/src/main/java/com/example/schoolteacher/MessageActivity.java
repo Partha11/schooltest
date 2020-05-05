@@ -1,11 +1,5 @@
 package com.example.schoolteacher;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -16,6 +10,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.schoolteacher.Model.Contacts;
 import com.example.schoolteacher.login.LoginActivity;
@@ -28,13 +28,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SectionDrawerItem;
-import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.squareup.picasso.Picasso;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -73,29 +71,26 @@ public class MessageActivity extends AppCompatActivity {
         chatsList.setLayoutManager(new LinearLayoutManager(MessageActivity.this));
 
 
-        bottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        bottomNav.setOnNavigationItemSelectedListener(item -> {
 
-                switch (item.getItemId()) {
-                    case R.id.bottomBarItemFirst:
-                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                        overridePendingTransition(0,0);
-                        break;
-                    case R.id.bottomBarItemSecond:
-                        startActivity(new Intent(getApplicationContext(), ClassActivity.class));
-                        overridePendingTransition(0,0);
-                        break;
-                    case R.id.bottomBarItemThird:
-                        break;
-                    case R.id.bottomBarItemFourth:
-                        startActivity(new Intent(getApplicationContext(), NotificationsActivity.class));
-                        overridePendingTransition(0,0);
-                        break;
-                }
-
-                return true;
+            switch (item.getItemId()) {
+                case R.id.bottomBarItemFirst:
+                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                    overridePendingTransition(0,0);
+                    break;
+                case R.id.bottomBarItemSecond:
+                    startActivity(new Intent(getApplicationContext(), ClassActivity.class));
+                    overridePendingTransition(0,0);
+                    break;
+                case R.id.bottomBarItemThird:
+                    break;
+                case R.id.bottomBarItemFourth:
+                    startActivity(new Intent(getApplicationContext(), NotificationsActivity.class));
+                    overridePendingTransition(0,0);
+                    break;
             }
+
+            return true;
         });
 
 
@@ -111,37 +106,37 @@ public class MessageActivity extends AppCompatActivity {
                 .withIcon(R.drawable.ic_account_circle);
 
         //secondary items
-        SecondaryDrawerItem calendar = (SecondaryDrawerItem) new SecondaryDrawerItem()
+        SecondaryDrawerItem calendar = new SecondaryDrawerItem()
                 .withIdentifier(11)
                 .withName(R.string.drawer_item_calendar)
                 .withIcon(R.drawable.ic_calendar);
-        SecondaryDrawerItem attendance = (SecondaryDrawerItem) new SecondaryDrawerItem()
+        SecondaryDrawerItem attendance = new SecondaryDrawerItem()
                 .withIdentifier(12)
                 .withName(R.string.drawer_item_attendance)
                 .withIcon(R.drawable.ic_attendance);
-        SecondaryDrawerItem whatsdue = (SecondaryDrawerItem) new SecondaryDrawerItem()
+        SecondaryDrawerItem whatsdue = new SecondaryDrawerItem()
                 .withIdentifier(13)
                 .withName(R.string.drawer_item_due)
                 .withIcon(R.drawable.ic_assignment);
-        SecondaryDrawerItem grades = (SecondaryDrawerItem) new SecondaryDrawerItem()
+        SecondaryDrawerItem grades = new SecondaryDrawerItem()
                 .withIdentifier(14)
                 .withName(R.string.drawer_item_grades)
                 .withIcon(R.drawable.ic_grades);
-        SecondaryDrawerItem folders = (SecondaryDrawerItem) new SecondaryDrawerItem()
+        SecondaryDrawerItem folders = new SecondaryDrawerItem()
                 .withIdentifier(15)
                 .withName(R.string.drawer_item_folders)
                 .withIcon(R.drawable.ic_folder);
 
         //settings, help, contact items
-        SecondaryDrawerItem settings = (SecondaryDrawerItem) new SecondaryDrawerItem()
+        SecondaryDrawerItem settings = new SecondaryDrawerItem()
                 .withIdentifier(97)
                 .withName(R.string.drawer_item_settings)
                 .withIcon(R.drawable.ic_settings);
-        SecondaryDrawerItem help = (SecondaryDrawerItem) new SecondaryDrawerItem()
+        SecondaryDrawerItem help = new SecondaryDrawerItem()
                 .withIdentifier(98)
                 .withName(R.string.drawer_item_help)
                 .withIcon(R.drawable.ic_help);
-        SecondaryDrawerItem logout = (SecondaryDrawerItem) new SecondaryDrawerItem()
+        SecondaryDrawerItem logout = new SecondaryDrawerItem()
                 .withIdentifier(99)
                 .withName(R.string.drawer_item_logout)
                 .withIcon(R.drawable.ic_logout);
@@ -169,40 +164,38 @@ public class MessageActivity extends AppCompatActivity {
                         logout
 
                 )
-                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-                    @Override
-                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                        if (drawerItem != null) {
-                            Intent intent = null;
-                            if (drawerItem.getIdentifier() == 1) {
-                                intent = new Intent(MessageActivity.this, ProfileInfoActivity.class);
-                            } else if (drawerItem.getIdentifier() == 2) {
-                                //intent = new Intent(MainActivity.this, Class.class);
-                            } else if (drawerItem.getIdentifier() == 3) {
-                                //intent = new Intent(MainActivity.this, Class.class);
-                            } else if (drawerItem.getIdentifier() == 11) {
-                                //intent = new Intent(MainActivity.this, Class.class);
-                            } else if (drawerItem.getIdentifier() == 12) {
-                                //intent = new Intent(MainActivity.this, Class.class);
-                            } else if (drawerItem.getIdentifier() == 13) {
-                                //intent = new Intent(MainActivity.this, Class.class);
-                            } else if (drawerItem.getIdentifier() == 97) {
-                                intent = new Intent(MessageActivity.this, Settings.class);
-                            } else if (drawerItem.getIdentifier() == 98) {
-                                intent = new Intent(MessageActivity.this, About.class);
-                            } else if (drawerItem.getIdentifier() == 99) {
-                                FirebaseAuth.getInstance().signOut();
-                                sendToStart();
-                                overridePendingTransition(0, 0);
+                .withOnDrawerItemClickListener((view, position, drawerItem) -> {
 
-                            }
-                            if (intent != null) {
-                                MessageActivity.this.startActivity(intent);
-                            }
+                    if (drawerItem != null) {
+                        Intent intent = null;
+                        if (drawerItem.getIdentifier() == 1) {
+                            intent = new Intent(MessageActivity.this, ProfileInfoActivity.class);
+                        } else if (drawerItem.getIdentifier() == 2) {
+                            //intent = new Intent(MainActivity.this, Class.class);
+                        } else if (drawerItem.getIdentifier() == 3) {
+                            //intent = new Intent(MainActivity.this, Class.class);
+                        } else if (drawerItem.getIdentifier() == 11) {
+                            //intent = new Intent(MainActivity.this, Class.class);
+                        } else if (drawerItem.getIdentifier() == 12) {
+                            //intent = new Intent(MainActivity.this, Class.class);
+                        } else if (drawerItem.getIdentifier() == 13) {
+                            //intent = new Intent(MainActivity.this, Class.class);
+                        } else if (drawerItem.getIdentifier() == 97) {
+                            intent = new Intent(MessageActivity.this, Settings.class);
+                        } else if (drawerItem.getIdentifier() == 98) {
+                            intent = new Intent(MessageActivity.this, About.class);
+                        } else if (drawerItem.getIdentifier() == 99) {
+                            FirebaseAuth.getInstance().signOut();
+                            sendToStart();
+                            overridePendingTransition(0, 0);
+
                         }
-
-                        return false;
+                        if (intent != null) {
+                            MessageActivity.this.startActivity(intent);
+                        }
                     }
+
+                    return false;
                 })
                 .build();
         //End of Navigation drawer
@@ -291,16 +284,14 @@ public class MessageActivity extends AppCompatActivity {
                                 }
 
 
-                                holder.itemView.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        Intent chatIntent = new Intent(MessageActivity.this, ChatsActivity.class);
-                                        chatIntent.putExtra("visitUserId", userIds);
-                                        chatIntent.putExtra("visitUserName", userName);
-                                        chatIntent.putExtra("status", userStatus);
-                                        chatIntent.putExtra("visitUserImage", profileImage[0]);
-                                        startActivity(chatIntent);
-                                    }
+                                holder.itemView.setOnClickListener(v -> {
+
+                                    Intent chatIntent = new Intent(MessageActivity.this, ChatsActivity.class);
+                                    chatIntent.putExtra("visitUserId", userIds);
+                                    chatIntent.putExtra("visitUserName", userName);
+                                    chatIntent.putExtra("status", userStatus);
+                                    chatIntent.putExtra("visitUserImage", profileImage[0]);
+                                    startActivity(chatIntent);
                                 });
                             }
 
