@@ -15,7 +15,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.schoolteacher.Model.Contacts;
+import com.example.schoolteacher.Model.Contact;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -74,15 +74,15 @@ public class RequestsActivity extends AppCompatActivity {
 
         super.onStart();
 
-        FirebaseRecyclerOptions<Contacts> options =
-                new FirebaseRecyclerOptions.Builder<Contacts>()
-                        .setQuery(chatRequestsRef.child(currentUserId), Contacts.class)
+        FirebaseRecyclerOptions<Contact> options =
+                new FirebaseRecyclerOptions.Builder<Contact>()
+                        .setQuery(chatRequestsRef.child(currentUserId), Contact.class)
                         .build();
 
-        final FirebaseRecyclerAdapter<Contacts, RequestsViewHolder> adapter =
-                new FirebaseRecyclerAdapter<Contacts, RequestsViewHolder>(options) {
+        final FirebaseRecyclerAdapter<Contact, RequestsViewHolder> adapter =
+                new FirebaseRecyclerAdapter<Contact, RequestsViewHolder>(options) {
                     @Override
-                    protected void onBindViewHolder(@NonNull final RequestsViewHolder holder, int position, @NonNull Contacts model) {
+                    protected void onBindViewHolder(@NonNull final RequestsViewHolder holder, int position, @NonNull Contact model) {
                         holder.itemView.findViewById(R.id.requests_accept_btn).setVisibility(View.VISIBLE);
                         holder.itemView.findViewById(R.id.requests_cancel_btn).setVisibility(View.VISIBLE);
 

@@ -1,6 +1,5 @@
 package com.example.schoolteacher;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -11,7 +10,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NavUtils;
@@ -28,6 +26,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ScheduleActivity extends AppCompatActivity  {
 
@@ -36,7 +35,6 @@ public class ScheduleActivity extends AppCompatActivity  {
     ArrayList<String> subs;
     ArrayList<String> subx;
     ArrayList<String> times;
-    Activity activity = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,12 +45,9 @@ public class ScheduleActivity extends AppCompatActivity  {
         //toolbar
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
-        ActionBar actionBar = this.getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
+        setSupportActionBar(toolbar);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);

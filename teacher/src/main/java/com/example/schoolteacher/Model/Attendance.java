@@ -1,24 +1,17 @@
 package com.example.schoolteacher.Model;
 
+import java.util.HashMap;
+
 public class Attendance {
 
-    private Integer totalClasses;
     private String attendanceId;
     private String attendanceDate;
+    private HashMap<String, Boolean> attendance;
 
-    public Attendance(Integer totalClasses, String attendanceId, String attendanceDate) {
+    public Attendance(String attendanceId, String attendanceDate) {
 
-        this.totalClasses = totalClasses;
         this.attendanceId = attendanceId;
         this.attendanceDate = attendanceDate;
-    }
-
-    public Integer getTotalClasses() {
-        return totalClasses;
-    }
-
-    public void setTotalClasses(Integer totalClasses) {
-        this.totalClasses = totalClasses;
     }
 
     public String getAttendanceId() {
@@ -35,5 +28,13 @@ public class Attendance {
 
     public void setAttendanceDate(String attendanceDate) {
         this.attendanceDate = attendanceDate;
+    }
+
+    public HashMap<String, Boolean> getAttendance() {
+        return attendance;
+    }
+
+    public void setAttendance(HashMap<String, Boolean> attendance) {
+        this.attendance = attendance;
     }
 }

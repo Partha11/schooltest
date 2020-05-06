@@ -5,13 +5,14 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NavUtils;
 
-import com.example.schoolteacher.Model.AssignClass;
+import com.example.schoolteacher.Model.Assignment;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -22,6 +23,7 @@ public class AddAssignmentActivity extends AppCompatActivity {
 
     private TextInputEditText etAddAssignment;
     private TextInputEditText etAddAssignmentTitle;
+    private EditText pointsText;
 
     private DatabaseReference reference;
 
@@ -46,15 +48,14 @@ public class AddAssignmentActivity extends AppCompatActivity {
 
         etAddAssignment = findViewById(R.id.etAddAssignment);
         etAddAssignmentTitle = findViewById(R.id.ettAddAssignmentTitle);
+        pointsText = findViewById(R.id.assignment_point);
 
         classId = getIntent().getStringExtra("classId");
 //        Intent intent = getIntent();
 //        noteId = intent.getStringExtra("noteId");
 
         reference = FirebaseDatabase.getInstance().getReference("Notes").child(classId).child("Assignments");
-
     }
-
 
     // itemSelected toolbar
     @Override
@@ -78,7 +79,15 @@ public class AddAssignmentActivity extends AppCompatActivity {
         if (!TextUtils.isEmpty(assignment) && !TextUtils.isEmpty(asTitle)) {
 
             String assignmentId = reference.push().getKey();
-            AssignClass assignClass = new AssignClass(assignmentId, asTitle, assignment);
+            String assignmentPoints = pointsText.getText().toString();
+            Assignment mAssignment = new Assignment();
+
+            int points = assignmentPoints.isEmpty() ? 0 : Integer.parseInt(assignmentPoints);
+
+            mAssignment.setAssignmentId(assignmentId);
+            mAssignment.setAssignmentTitle(asTitle);
+            mAssignment.setAssignmentDescription(assignment);
+            mAssignment.setAssignmentPoints(points);
 
             if (assignmentId == null) {
 
@@ -86,7 +95,7 @@ public class AddAssignmentActivity extends AppCompatActivity {
 
             } else {
 
-                reference.child(assignmentId).setValue(assignClass).addOnCompleteListener(task -> {
+                reference.child(assignmentId).setValue(mAssignment).addOnCompleteListener(task -> {
 
                     if (task.isSuccessful()) {
 
@@ -108,5 +117,4 @@ public class AddAssignmentActivity extends AppCompatActivity {
             Toast.makeText(this, getString(R.string.enter_assignment), Toast.LENGTH_LONG).show();
         }
     }
-
 }

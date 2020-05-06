@@ -2,20 +2,19 @@ package com.example.schoolteacher.parents;
 
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.schoolteacher.ChatsActivity;
-import com.example.schoolteacher.Model.Contacts;
+import com.example.schoolteacher.Model.Contact;
 import com.example.schoolteacher.R;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -61,15 +60,15 @@ public class ChatsFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        FirebaseRecyclerOptions<Contacts> options = new FirebaseRecyclerOptions.Builder<Contacts>()
-                .setQuery(chatsRef, Contacts.class)
+        FirebaseRecyclerOptions<Contact> options = new FirebaseRecyclerOptions.Builder<Contact>()
+                .setQuery(chatsRef, Contact.class)
                 .build();
 
 
-        FirebaseRecyclerAdapter<Contacts, ChatsViewHolder> adapter =
-                new FirebaseRecyclerAdapter<Contacts, ChatsViewHolder>(options) {
+        FirebaseRecyclerAdapter<Contact, ChatsViewHolder> adapter =
+                new FirebaseRecyclerAdapter<Contact, ChatsViewHolder>(options) {
                     @Override
-                    protected void onBindViewHolder(@NonNull final ChatsViewHolder holder, int position, @NonNull Contacts model) {
+                    protected void onBindViewHolder(@NonNull final ChatsViewHolder holder, int position, @NonNull Contact model) {
                         final String userIds = getRef(position).getKey();
                         final String [] profileImage = {"default"};
                         usersRef.child(userIds).addValueEventListener(new ValueEventListener() {

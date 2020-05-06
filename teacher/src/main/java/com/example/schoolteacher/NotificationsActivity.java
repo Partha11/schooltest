@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.schoolteacher.Adapter.NotificationAdapter;
 import com.example.schoolteacher.Model.ClassModel;
-import com.example.schoolteacher.Model.Contacts;
+import com.example.schoolteacher.Model.Contact;
 import com.example.schoolteacher.Model.NotificationModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -153,7 +153,7 @@ public class NotificationsActivity extends AppCompatActivity implements Notifica
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                    Contacts contact = dataSnapshot.getValue(Contacts.class);
+                    Contact contact = dataSnapshot.getValue(Contact.class);
                     adapter.addContact(contact);
                 }
 

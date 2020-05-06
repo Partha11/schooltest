@@ -1,14 +1,6 @@
 package com.example.schoolteacher;
 
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.NavUtils;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,7 +11,14 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.example.schoolteacher.Model.Contacts;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NavUtils;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.schoolteacher.Model.Contact;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -124,15 +123,15 @@ public class PeopleActivity extends AppCompatActivity {
 
         super.onStart();
 
-        FirebaseRecyclerOptions<Contacts> options = new FirebaseRecyclerOptions.Builder<Contacts>()
-                .setQuery(contactsClassRef, Contacts.class)
+        FirebaseRecyclerOptions<Contact> options = new FirebaseRecyclerOptions.Builder<Contact>()
+                .setQuery(contactsClassRef, Contact.class)
                 .build();
 
-        FirebaseRecyclerAdapter<Contacts, PeopleActivity.PeopleViewHolder> adapter =
-                new FirebaseRecyclerAdapter<Contacts, PeopleActivity.PeopleViewHolder>(options) {
+        FirebaseRecyclerAdapter<Contact, PeopleActivity.PeopleViewHolder> adapter =
+                new FirebaseRecyclerAdapter<Contact, PeopleActivity.PeopleViewHolder>(options) {
 
                     @Override
-                    protected void onBindViewHolder(@NonNull final PeopleViewHolder holder, int position, @NonNull Contacts model) {
+                    protected void onBindViewHolder(@NonNull final PeopleViewHolder holder, int position, @NonNull Contact model) {
 
                         final String userIds = getRef(position).getKey();
                         final String [] profileImage = {"default"};

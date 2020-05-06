@@ -17,7 +17,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.schoolteacher.Model.Contacts;
+import com.example.schoolteacher.Model.Contact;
 import com.example.schoolteacher.login.LoginActivity;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -241,15 +241,15 @@ public class MessageActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        FirebaseRecyclerOptions<Contacts> options = new FirebaseRecyclerOptions.Builder<Contacts>()
-                .setQuery(chatsRef, Contacts.class)
+        FirebaseRecyclerOptions<Contact> options = new FirebaseRecyclerOptions.Builder<Contact>()
+                .setQuery(chatsRef, Contact.class)
                 .build();
 
 
-        FirebaseRecyclerAdapter<Contacts, ChatsViewHolder> adapter =
-                new FirebaseRecyclerAdapter<Contacts, ChatsViewHolder>(options) {
+        FirebaseRecyclerAdapter<Contact, ChatsViewHolder> adapter =
+                new FirebaseRecyclerAdapter<Contact, ChatsViewHolder>(options) {
                     @Override
-                    protected void onBindViewHolder(@NonNull final ChatsViewHolder holder, int position, @NonNull Contacts model) {
+                    protected void onBindViewHolder(@NonNull final ChatsViewHolder holder, int position, @NonNull Contact model) {
                         final String userIds = getRef(position).getKey();
                         final String [] profileImage = {"default"};
                         usersRef.child(userIds).addValueEventListener(new ValueEventListener() {

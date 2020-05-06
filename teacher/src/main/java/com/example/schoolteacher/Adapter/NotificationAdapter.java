@@ -10,7 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.schoolteacher.Model.Contacts;
+import com.example.schoolteacher.Model.Contact;
 import com.example.schoolteacher.R;
 import com.squareup.picasso.Picasso;
 
@@ -21,7 +21,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.ViewHolder> {
 
-    private List<Contacts> contacts;
+    private List<Contact> contacts;
     private InvitationActionListener listener;
 
     public NotificationAdapter() {
@@ -57,7 +57,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         this.contacts.clear();
     }
 
-    public void addContact(Contacts contact) {
+    public void addContact(Contact contact) {
 
         this.contacts.add(contact);
         notifyItemInserted(contacts.size() - 1);

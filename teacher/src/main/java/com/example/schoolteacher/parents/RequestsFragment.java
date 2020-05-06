@@ -2,13 +2,6 @@ package com.example.schoolteacher.parents;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +9,13 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.schoolteacher.Model.Contacts;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.schoolteacher.Model.Contact;
 import com.example.schoolteacher.R;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -64,15 +63,15 @@ public class RequestsFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-        FirebaseRecyclerOptions<Contacts> options =
-                new FirebaseRecyclerOptions.Builder<Contacts>()
-                        .setQuery(chatRequestsRef.child(currentUserId), Contacts.class)
+        FirebaseRecyclerOptions<Contact> options =
+                new FirebaseRecyclerOptions.Builder<Contact>()
+                        .setQuery(chatRequestsRef.child(currentUserId), Contact.class)
                         .build();
 
-        final FirebaseRecyclerAdapter<Contacts, RequestsViewHolder> adapter =
-                new FirebaseRecyclerAdapter<Contacts, RequestsViewHolder>(options) {
+        final FirebaseRecyclerAdapter<Contact, RequestsViewHolder> adapter =
+                new FirebaseRecyclerAdapter<Contact, RequestsViewHolder>(options) {
                     @Override
-                    protected void onBindViewHolder(@NonNull final RequestsViewHolder holder, int position, @NonNull Contacts model) {
+                    protected void onBindViewHolder(@NonNull final RequestsViewHolder holder, int position, @NonNull Contact model) {
                         holder.itemView.findViewById(R.id.requests_accept_btn).setVisibility(View.VISIBLE);
                         holder.itemView.findViewById(R.id.requests_cancel_btn).setVisibility(View.VISIBLE);
 

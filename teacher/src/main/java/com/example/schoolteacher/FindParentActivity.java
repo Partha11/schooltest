@@ -1,11 +1,5 @@
 package com.example.schoolteacher;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,7 +7,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.schoolteacher.Model.Contacts;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.schoolteacher.Model.Contact;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -66,16 +66,16 @@ public class FindParentActivity extends AppCompatActivity {
 
         super.onStart();
 
-        FirebaseRecyclerOptions<Contacts> options = new FirebaseRecyclerOptions.Builder<Contacts>()
-                .setQuery(userRef, Contacts.class)
+        FirebaseRecyclerOptions<Contact> options = new FirebaseRecyclerOptions.Builder<Contact>()
+                .setQuery(userRef, Contact.class)
                 .build();
 
-        FirebaseRecyclerAdapter<Contacts, FindParentActivity.FindParentViewHolder> adapter =
-                new FirebaseRecyclerAdapter<Contacts, FindParentActivity.FindParentViewHolder>(options) {
+        FirebaseRecyclerAdapter<Contact, FindParentActivity.FindParentViewHolder> adapter =
+                new FirebaseRecyclerAdapter<Contact, FindParentActivity.FindParentViewHolder>(options) {
 
             @Override
             protected void onBindViewHolder(@NonNull FindParentActivity.FindParentViewHolder holder,
-                                            final int position, @NonNull Contacts model) {
+                                            final int position, @NonNull Contact model) {
 
                 holder.userName.setText(model.getName());
                 holder.userStatus.setText(model.getStatus());

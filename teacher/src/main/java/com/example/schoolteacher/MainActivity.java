@@ -2,7 +2,6 @@ package com.example.schoolteacher;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,15 +29,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.mikepenz.materialdrawer.AccountHeader;
-import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
-import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SectionDrawerItem;
-import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -104,37 +99,37 @@ public class MainActivity extends AppCompatActivity {
                 .withIcon(R.drawable.ic_account_circle);
 
         //secondary items
-        SecondaryDrawerItem calendar = (SecondaryDrawerItem) new SecondaryDrawerItem()
+        SecondaryDrawerItem calendar = new SecondaryDrawerItem()
                 .withIdentifier(11)
                 .withName(R.string.drawer_item_calendar)
                 .withIcon(R.drawable.ic_calendar);
-        SecondaryDrawerItem attendance = (SecondaryDrawerItem) new SecondaryDrawerItem()
+        SecondaryDrawerItem attendance = new SecondaryDrawerItem()
                 .withIdentifier(12)
                 .withName(R.string.drawer_item_attendance)
                 .withIcon(R.drawable.ic_attendance);
-        SecondaryDrawerItem whatsdue = (SecondaryDrawerItem) new SecondaryDrawerItem()
+        SecondaryDrawerItem whatsdue = new SecondaryDrawerItem()
                 .withIdentifier(13)
                 .withName(R.string.drawer_item_assignment)
                 .withIcon(R.drawable.ic_assignment);
-        SecondaryDrawerItem grades = (SecondaryDrawerItem) new SecondaryDrawerItem()
+        SecondaryDrawerItem grades = new SecondaryDrawerItem()
                 .withIdentifier(14)
                 .withName(R.string.drawer_item_grades)
                 .withIcon(R.drawable.ic_grades);
-        SecondaryDrawerItem folders = (SecondaryDrawerItem) new SecondaryDrawerItem()
+        SecondaryDrawerItem folders = new SecondaryDrawerItem()
                 .withIdentifier(15)
                 .withName(R.string.drawer_item_folders)
                 .withIcon(R.drawable.ic_folder);
 
         //settings, help, contact items
-        SecondaryDrawerItem settings = (SecondaryDrawerItem) new SecondaryDrawerItem()
+        SecondaryDrawerItem settings = new SecondaryDrawerItem()
                 .withIdentifier(97)
                 .withName(R.string.drawer_item_settings)
                 .withIcon(R.drawable.ic_setting);
-        SecondaryDrawerItem about = (SecondaryDrawerItem) new SecondaryDrawerItem()
+        SecondaryDrawerItem about = new SecondaryDrawerItem()
                 .withIdentifier(98)
                 .withName(R.string.about)
                 .withIcon(R.drawable.ic_help);
-        SecondaryDrawerItem logout = (SecondaryDrawerItem) new SecondaryDrawerItem()
+        SecondaryDrawerItem logout = new SecondaryDrawerItem()
                 .withIdentifier(99)
                 .withName(R.string.drawer_item_logout)
                 .withIcon(R.drawable.ic_logout);
@@ -161,40 +156,38 @@ public class MainActivity extends AppCompatActivity {
                         logout
 
                 )
-                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-                    @Override
-                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                        if (drawerItem != null) {
-                            Intent intent = null;
-                            if (drawerItem.getIdentifier() == 1) {
-                                intent = new Intent(MainActivity.this, ProfileInfoActivity.class);
-                            } else if (drawerItem.getIdentifier() == 11) {
-                                intent = new Intent(MainActivity.this, ScheduleActivity.class);
-                            } else if (drawerItem.getIdentifier() == 12) {
-                                intent = new Intent(MainActivity.this, AttendanceActivity.class);
-                            } else if (drawerItem.getIdentifier() == 13) {
-                               // intent = new Intent(MainActivity.this, Class.class);
-                            } else if (drawerItem.getIdentifier() == 14) {
-                                //intent = new Intent(MainActivity.this, Class.class);
-                            } else if (drawerItem.getIdentifier() == 15) {
-                                intent = new Intent(MainActivity.this, GradesActivity.class);
-                            } else if (drawerItem.getIdentifier() == 97) {
-                                intent = new Intent(MainActivity.this, SettingsActivity.class);
-                            } else if (drawerItem.getIdentifier() == 98) {
-                                intent = new Intent(MainActivity.this, About.class);
-                            } else if (drawerItem.getIdentifier() == 99) {
-                                FirebaseAuth.getInstance().signOut();
-                                sendToStart();
-                                overridePendingTransition(0, 0);
+                .withOnDrawerItemClickListener((view, position, drawerItem) -> {
+                    if (drawerItem != null) {
+                        Intent intent = null;
+                        if (drawerItem.getIdentifier() == 1) {
+                            intent = new Intent(MainActivity.this, ProfileInfoActivity.class);
+                        } else if (drawerItem.getIdentifier() == 11) {
+                            intent = new Intent(MainActivity.this, ScheduleActivity.class);
+                        } else if (drawerItem.getIdentifier() == 12) {
+                            intent = new Intent(MainActivity.this, AttendanceActivity.class);
+                        } else if (drawerItem.getIdentifier() == 13) {
+                           // intent = new Intent(MainActivity.this, Class.class);
+                        } else if (drawerItem.getIdentifier() == 14) {
+                            intent = new Intent(MainActivity.this, GradesActivity.class);
+                            //intent = new Intent(MainActivity.this, Class.class);
+                        } else if (drawerItem.getIdentifier() == 15) {
+                            //intent = new Intent(MainActivity.this, Class.class);
+                        } else if (drawerItem.getIdentifier() == 97) {
+                            intent = new Intent(MainActivity.this, SettingsActivity.class);
+                        } else if (drawerItem.getIdentifier() == 98) {
+                            intent = new Intent(MainActivity.this, About.class);
+                        } else if (drawerItem.getIdentifier() == 99) {
+                            FirebaseAuth.getInstance().signOut();
+                            sendToStart();
+                            overridePendingTransition(0, 0);
 
-                            }
-                            if (intent != null) {
-                                MainActivity.this.startActivity(intent);
-                            }
                         }
-
-                        return false;
+                        if (intent != null) {
+                            MainActivity.this.startActivity(intent);
+                        }
                     }
+
+                    return false;
                 })
                 .build();
         //End of Navigation drawer

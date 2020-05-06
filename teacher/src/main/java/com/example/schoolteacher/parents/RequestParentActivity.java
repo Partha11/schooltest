@@ -15,7 +15,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.schoolteacher.Adapter.NotificationAdapter;
 import com.example.schoolteacher.Model.ClassModel;
-import com.example.schoolteacher.Model.Contacts;
+import com.example.schoolteacher.Model.Contact;
+import com.example.schoolteacher.Model.Member;
 import com.example.schoolteacher.Model.NotificationModel;
 import com.example.schoolteacher.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -28,14 +29,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class RequestParentActivity extends AppCompatActivity implements NotificationAdapter.InvitationActionListener {
 
-    //    private LinearLayoutManager linearLayoutManager;
-    private View requestsFragmentView;
-    private RecyclerView classRequestsList;
     private DatabaseReference classRequestRef, userRef, contactsClassRef;
     private FirebaseAuth mAuth;
     private String currentUserId;
@@ -129,7 +126,7 @@ public class RequestParentActivity extends AppCompatActivity implements Notifica
         adapter = new NotificationAdapter();
         user = FirebaseAuth.getInstance().getCurrentUser();
 
-        classRequestsList = findViewById(R.id.class_requests_list);
+        RecyclerView classRequestsList = findViewById(R.id.class_requests_list);
 
         if (user != null) {
 
@@ -192,7 +189,7 @@ public class RequestParentActivity extends AppCompatActivity implements Notifica
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                    Contacts contact = dataSnapshot.getValue(Contacts.class);
+                    Contact contact = dataSnapshot.getValue(Contact.class);
 
                     if (contact != null) {
 
@@ -234,13 +231,21 @@ public class RequestParentActivity extends AppCompatActivity implements Notifica
 
                 if (mClass != null) {
 
-                    HashMap<String, Long> data = new HashMap<>();
-                    data.put("joinedAt", System.currentTimeMillis());
+                    Member member = new Member();
+                    String key = reference.push().getKey();
+
+                    if (key == null) {
+
+                        return;
+                    }
+
+                    member.setJoinedAt(String.valueOf(System.currentTimeMillis()));
+                    member.setMemberId(user.getUid());
 
                     mClass.setClassFollowers(mClass.getClassFollowers() + 1);
                     reference.child("Notes").child(classId).child("classFollowers").setValue(mClass.getClassFollowers());
-                    reference.child("Notes").child(classId).child("memberList").setValue(data);
-                    reference.child("Users").child(user.getUid()).child("Classes").child(classId).setValue(data);
+                    reference.child("Notes").child(classId).child("memberList").child(key).setValue(member);
+                    reference.child("Users").child(user.getUid()).child("Classes").child(classId).setValue(member);
 
                     removeNotification(classId);
                 }

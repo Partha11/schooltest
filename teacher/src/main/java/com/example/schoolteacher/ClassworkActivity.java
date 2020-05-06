@@ -13,7 +13,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NavUtils;
 
 import com.example.schoolteacher.Adapter.AssignAdapter;
-import com.example.schoolteacher.Model.AssignClass;
+import com.example.schoolteacher.Model.Assignment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
@@ -31,7 +31,7 @@ public class ClassworkActivity extends AppCompatActivity {
 
     private DatabaseReference reference;
 
-    private List<AssignClass> assignmentList;
+    private List<Assignment> assignmentList;
 
     private ListView listView;
     private String classId;
@@ -113,16 +113,15 @@ public class ClassworkActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-
         listView.setOnItemClickListener((parent, view, position, id) -> {
 
-            AssignClass assignClass = assignmentList.get(position);
+            Assignment assignment = assignmentList.get(position);
             Intent intent = new Intent(getApplicationContext(), AssignmentScreenActivity.class);
 
             intent.putExtra("classId", classId);
-            intent.putExtra("asId", assignClass.getAsId());
-            intent.putExtra("assignmentTitle", assignClass.getAsTitle());
-            intent.putExtra("assignment", assignClass.getAssignment());
+            intent.putExtra("asId", assignment.getAssignmentId());
+            intent.putExtra("assignmentTitle", assignment.getAssignmentTitle());
+            intent.putExtra("assignment", assignment.getAssignmentDescription());
 
             startActivity(intent);
         });
@@ -141,8 +140,8 @@ public class ClassworkActivity extends AppCompatActivity {
 
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
 
-                    AssignClass assignments = ds.getValue(AssignClass.class);
-                    assignmentList.add(assignments);
+                    Assignment assignment = ds.getValue(Assignment.class);
+                    assignmentList.add(assignment);
                 }
 
                 Collections.reverse(assignmentList);
@@ -159,15 +158,17 @@ public class ClassworkActivity extends AppCompatActivity {
         });
     }
 
-
-
     // item toolbar
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         int id = item.getItemId();
+
         if (id == android.R.id.home) {
+
             NavUtils.navigateUpFromSameTask(this);
         }
+
         return super.onOptionsItemSelected(item);
     }
 }

@@ -8,42 +8,43 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.example.schoolteacher.Model.PostClass;
+import androidx.annotation.NonNull;
+
+import com.example.schoolteacher.Model.Stream;
 import com.example.schoolteacher.R;
 
 import java.util.List;
 
-public class PostAdapter extends ArrayAdapter<PostClass> {
+public class PostAdapter extends ArrayAdapter<Stream> {
 
     private Activity context;
-    List<PostClass> posts;
+    private List<Stream> streams;
 
-    public PostAdapter(Activity context, List<PostClass> posts) {
-        super(context, R.layout.stream_item, posts);
+    public PostAdapter(Activity context, List<Stream> streams) {
+
+        super(context, R.layout.stream_item, streams);
+
         this.context = context;
-        this.posts = posts;
+        this.streams = streams;
     }
 
     @Override
-    public int getCount() {
-        posts.size();
-        return super.getCount();
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    @NonNull
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
 
         LayoutInflater layoutInflater = context.getLayoutInflater();
-        View customView = layoutInflater.inflate(R.layout.stream_item, null, true);
 
-        TextView tvCustomPostTitle = (TextView) customView.findViewById(R.id.tvCustomPostTitle);
-        TextView tvCustomPost = (TextView) customView.findViewById(R.id.tvCustomPost);
+        if (convertView == null) {
 
-        PostClass post = posts.get(position);
-        tvCustomPostTitle.setText(post.getPostTitle());
-        tvCustomPost.setText(post.getPost());
+            convertView = layoutInflater.inflate(R.layout.stream_item, parent, false);
+        }
 
+        TextView tvCustomPostTitle = convertView.findViewById(R.id.tvCustomPostTitle);
+        TextView tvCustomPost = convertView.findViewById(R.id.tvCustomPost);
 
-        return customView;
+        tvCustomPostTitle.setText(streams.get(position).getStreamTitle());
+        tvCustomPost.setText(streams.get(position).getStreamContent());
+
+        return convertView;
     }
 }
