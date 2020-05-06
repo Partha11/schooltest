@@ -6,7 +6,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
@@ -14,7 +13,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NavUtils;
 
+import com.example.schoolteacher.Adapter.ScheduleAdapter;
 import com.example.schoolteacher.Model.ClassModel;
+import com.example.schoolteacher.Model.Schedule;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -31,10 +32,9 @@ import java.util.Objects;
 public class ScheduleActivity extends AppCompatActivity  {
 
     ListView listView;
-    ArrayAdapter adapter;
-    ArrayList<String> subs;
-    ArrayList<String> subx;
-    ArrayList<String> times;
+
+    private DatabaseReference reference;
+    private ScheduleAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,10 +61,6 @@ public class ScheduleActivity extends AppCompatActivity  {
             startActivity(launchIntent);
         });
 
-        subs = new ArrayList<>();
-        times = new ArrayList<>();
-        subx = new ArrayList<>();
-        listView = findViewById(R.id.schedulerList);
 //        loadSchedules();
 //        listView.setOnItemLongClickListener(this);
 
@@ -74,8 +70,9 @@ public class ScheduleActivity extends AppCompatActivity  {
     private void initialize() {
 
         List<ClassModel> classes = new ArrayList<>();
+        listView = findViewById(R.id.schedulerList);
 
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Notes");
+        reference = FirebaseDatabase.getInstance().getReference("Notes");
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
         if (user == null) {
@@ -102,7 +99,7 @@ public class ScheduleActivity extends AppCompatActivity  {
                     }
                 }
 
-                adapter.notifyDataSetChanged();
+                fetchSchedules(classes);
             }
 
             @Override
@@ -110,6 +107,39 @@ public class ScheduleActivity extends AppCompatActivity  {
 
             }
         });
+    }
+
+    private void fetchSchedules(List<ClassModel> classes) {
+
+        List<Schedule> schedules = new ArrayList<>();
+
+        for (ClassModel c : classes) {
+
+            reference.child(c.getClassId()).child("Schedules").addListenerForSingleValueEvent(new ValueEventListener() {
+
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                    for (DataSnapshot d : dataSnapshot.getChildren()) {
+
+                        Schedule schedule = d.getValue(Schedule.class);
+
+                        if (schedule != null) {
+
+                            schedules.add(schedule);
+                        }
+                    }
+
+                    adapter = new ScheduleAdapter(ScheduleActivity.this, schedules);
+                    listView.setAdapter(adapter);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
     }
 
 
@@ -137,7 +167,8 @@ public class ScheduleActivity extends AppCompatActivity  {
 
 
     public void refresh(MenuItem item) {
- //       loadSchedules();
+
+//        fetchSchedules();
     }
 
 

@@ -8,6 +8,10 @@ public class Attendance {
     private String attendanceDate;
     private HashMap<String, Boolean> attendance;
 
+    public Attendance() {
+        //Necessary for Firebase
+    }
+
     public Attendance(String attendanceId, String attendanceDate) {
 
         this.attendanceId = attendanceId;

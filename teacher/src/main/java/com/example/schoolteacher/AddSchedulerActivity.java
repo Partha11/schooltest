@@ -1,146 +1,182 @@
 package com.example.schoolteacher;
 
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.NavUtils;
-
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NavUtils;
+
+import com.example.schoolteacher.Model.ClassModel;
+import com.example.schoolteacher.Model.Schedule;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class AddSchedulerActivity extends AppCompatActivity {
 
-    Spinner classSelect, daySelect;
-    Spinner adapterSpinner;
-    ArrayAdapter days;
-    ArrayList classList, list;
-    TextView textView;
+    private List<ClassModel> classes;
+
+    private DatabaseReference reference;
+    private Spinner classSpinner;
+    private Spinner daySpinner;
+    private EditText subjectName;
+    private TimePicker timePicker;
+
+    private ArrayAdapter<String> classNameAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_scheduler);
 
         //toolbar
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
-        ActionBar actionBar = this.getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_close);
-        }
+        setSupportActionBar(toolbar);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close);
 
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 
-
-// class spinner (incomplete : need to retrieve noteTitle to put it in class spinner items
-
-        classSelect = (Spinner) findViewById(R.id.classSelector);
-
-        String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        final String noteId = prefs.getString("id", ""); //no id: default value
-        String noteTitle = prefs.getString("noteTitle", ""); //no id: default value
-
-
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference AttrReference = reference.child("Users").child(userID).child("Notes").child(noteId).child(noteTitle);
-
-        Query query=AttrReference.orderByKey().equalTo(noteId);
-
-
-
-
-        // day spinner
-
-        daySelect = (Spinner) findViewById(R.id.daySelector);
-
-
-
-        ArrayList<String> weekdays = new ArrayList<>();
-        weekdays.add("Monday");
-        weekdays.add("Tuesday");
-        weekdays.add("Wednesday");
-        weekdays.add("Thursday");
-        weekdays.add("Friday");
-        weekdays.add("Saturday");
-        weekdays.add("Sunday");
-
-        days = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, weekdays);
-        assert classSelect != null;
-        daySelect.setAdapter(days);
-
-        // button
-
-        Button btn = (Button) findViewById(R.id.saveBUTTON_SCHEDULE);
-        assert btn != null;
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveSchedule(v);
-            }
-        });
-
-
-
-
-
-
-
-
-
-
-
+        initialize();
     }
 
+    private void initialize() {
 
-// incomplete
-    private void saveSchedule(View v) {
+        classes = new ArrayList<>();
 
-        String daySelected = daySelect.getSelectedItem().toString();
-        String classSelected = classSelect.getSelectedItem().toString();
-        EditText editText = (EditText) findViewById(R.id.subjectName);
-        String subject = editText.getText().toString();
-        if (subject.length() < 2) {
-            Toast.makeText(getBaseContext(), "Enter Valid Subject Name", Toast.LENGTH_SHORT).show();
+        reference = FirebaseDatabase.getInstance().getReference();
+        classSpinner = findViewById(R.id.classSelector);
+        daySpinner = findViewById(R.id.daySelector);
+        subjectName = findViewById(R.id.subjectName);
+        timePicker = findViewById(R.id.timePicker);
+        classNameAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item);
+        ArrayList<String> days = new ArrayList<>();
+
+        classSpinner.setAdapter(classNameAdapter);
+
+        days.add("Monday");
+        days.add("Tuesday");
+        days.add("Wednesday");
+        days.add("Thursday");
+        days.add("Friday");
+        days.add("Saturday");
+        days.add("Sunday");
+
+        ArrayAdapter<String> daysAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, days);
+        daySpinner.setAdapter(daysAdapter);
+
+        Button button = findViewById(R.id.saveBUTTON_SCHEDULE);
+        button.setOnClickListener(v -> saveSchedule());
+
+        populateSpinner();
+    }
+
+    private void populateSpinner() {
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user == null) {
+
+            //Add code for loading login activity
             return;
         }
-        TimePicker timePicker = (TimePicker) findViewById(R.id.timePicker);
-        int hour = timePicker.getCurrentHour();
-        int min = timePicker.getCurrentMinute();
 
+        reference.child("Notes").addListenerForSingleValueEvent(new ValueEventListener() {
 
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot d : dataSnapshot.getChildren()) {
+
+                    ClassModel mClass = d.getValue(ClassModel.class);
+
+                    if (mClass != null) {
+
+                        if (mClass.getCreatedBy() != null && mClass.getCreatedBy().equals(user.getEmail())) {
+
+                            classes.add(mClass);
+                            classNameAdapter.add(mClass.getClassName());
+                        }
+                    }
+                }
+
+                classNameAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
+    private void saveSchedule() {
 
+        String subject = subjectName.getText().toString();
 
+        if (subject.length() < 2) {
 
-    // itemSelected toolbar
+            Toast.makeText(this, "Enter a valid subject name", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int hour = timePicker.getHour();
+        int minute = timePicker.getMinute();
+        String key = reference.push().getKey();
+        String classId = classes.get(classSpinner.getSelectedItemPosition()).getClassId();
+        String classTime = "at " + hour + ":" + minute + " " + daySpinner.getSelectedItem().toString();
+
+        if (key == null) {
+
+            Toast.makeText(this, "Please try again", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Schedule schedule = new Schedule();
+
+        schedule.setScheduleId(key);
+        schedule.setClassName(classes.get(classSpinner.getSelectedItemPosition()).getClassName());
+        schedule.setSubjectName(subject);
+        schedule.setClassTime(classTime);
+
+        reference.child("Notes").child(classId).child("Schedules").child(key)
+                .setValue(schedule).addOnCompleteListener(task -> {
+
+            if (task.isSuccessful()) {
+
+                finish();
+            }
+        });
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         int id = item.getItemId();
+
         if (id == android.R.id.home) {
+
             NavUtils.navigateUpFromSameTask(this);
         }
 

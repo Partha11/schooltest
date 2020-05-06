@@ -111,7 +111,8 @@ public class AttendanceActivity extends AppCompatActivity {
             }
 
             attendance.setAttendance(present);
-            reference.child("Notes").child("Attendances").child(key).setValue(attendance);
+            reference.child("Notes").child(classes.get(spinner.getSelectedItemPosition()).getClassId())
+                    .child("Attendances").child(key).setValue(attendance);
         }
     }
 

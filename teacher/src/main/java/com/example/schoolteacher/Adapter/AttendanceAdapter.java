@@ -40,15 +40,19 @@ public class AttendanceAdapter extends ArrayAdapter<Contact> {
 
         if (convertView == null) {
 
-            convertView = LayoutInflater.from(context).inflate(R.layout.attendance_item, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.parents_attendance_item, parent, false);
         }
 
-        TextView textView = convertView.findViewById(R.id.attendanceName);
+        TextView className = convertView.findViewById(R.id.class_title);
+        TextView parentName = convertView.findViewById(R.id.parent_name);
+        TextView parentStatus = convertView.findViewById(R.id.parent_status);
         CheckBox checkBox = convertView.findViewById(R.id.attMarker);
-        String name = contacts.get(position).getClassName() + "\n" + contacts.get(position).getName() +
-                "\n" + contacts.get(position).getStatus();
 
-        textView.setText(name);
+        className.setText(contacts.get(position).getClassName());
+        parentName.setText(contacts.get(position).getName());
+        parentStatus.setText(contacts.get(position).getStatus());
+        contacts.get(position).setPresent(checkBox.isChecked());
+
         checkBox.setOnCheckedChangeListener((compoundButton, b) -> contacts.get(position).setPresent(b));
 
         return convertView;

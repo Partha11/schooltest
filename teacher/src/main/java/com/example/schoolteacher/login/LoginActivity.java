@@ -71,7 +71,7 @@ public class LoginActivity extends AppCompatActivity {
         //check the current user
         if (mAuth.getCurrentUser() != null) {
 
-            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            startActivity(new Intent(LoginActivity.this, MainParentsActivity.class));
             finish();
             overridePendingTransition(0, 0);
         }

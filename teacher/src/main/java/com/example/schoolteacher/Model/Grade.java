@@ -6,7 +6,15 @@ public class Grade {
 
     private String gradeId;
     private String date;
+    private String className;
+    private String parentName;
+    private String parentStatus;
+    private String grade;
     private HashMap<String, String> grades;
+
+    public Grade() {
+        //Empty
+    }
 
     public Grade(String gradeId, String date) {
 
@@ -36,5 +44,37 @@ public class Grade {
 
     public void setGrades(HashMap<String, String> grades) {
         this.grades = grades;
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    public String getParentName() {
+        return parentName;
+    }
+
+    public void setParentName(String parentName) {
+        this.parentName = parentName;
+    }
+
+    public String getParentStatus() {
+        return parentStatus;
+    }
+
+    public void setParentStatus(String parentStatus) {
+        this.parentStatus = parentStatus;
+    }
+
+    public String getGrade() {
+        return grade;
+    }
+
+    public void setGrade(String grade) {
+        this.grade = grade;
     }
 }

@@ -99,7 +99,8 @@ public class GradesActivity extends AppCompatActivity {
             }
 
             grade.setGrades(present);
-            reference.child("Notes").child("Grades").child(key).setValue(grade);
+            reference.child("Notes").child(classes.get(spinner.getSelectedItemPosition()).getClassId())
+                    .child("Grades").child(key).setValue(grade);
         }
     }
 

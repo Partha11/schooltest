@@ -1,61 +1,195 @@
 package com.example.schoolteacher.parents;
 
+import android.content.Context;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import com.example.schoolteacher.Model.ClassModel;
+import com.example.schoolteacher.Model.Contact;
+import com.example.schoolteacher.Model.Grade;
 import com.example.schoolteacher.R;
+import com.example.schoolteacher.parents.Adapter.ParentGradesAdapter;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class NotesFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private ListView listView;
+
+    private FirebaseUser user;
+    private DatabaseReference reference;
+
+    private ParentGradesAdapter adapter;
+    private Context context;
+
+    private String parentName;
+    private String parentStatus;
 
     public NotesFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment NotesFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static NotesFragment newInstance(String param1, String param2) {
-        NotesFragment fragment = new NotesFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        View view = inflater.inflate(R.layout.fragment_notes, container, false);
+        listView = view.findViewById(R.id.gradesLv);
+
+        return view;
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
+        super.onViewCreated(view, savedInstanceState);
+        initialize();
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+
+        super.onAttach(context);
+        this.context = context;
+    }
+
+    private void initialize() {
+
+        user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user == null) {
+
+            return;
+        }
+
+        reference = FirebaseDatabase.getInstance().getReference();
+        List<String> classes = new ArrayList<>();
+
+        fetchParentData();
+
+        reference.child("Users").child(user.getUid()).child("Classes").addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot d : dataSnapshot.getChildren()) {
+
+                    classes.add(d.getKey());
+                }
+
+                fetchClasses(classes);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void fetchParentData() {
+
+        reference.child("Users").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                Contact contact = dataSnapshot.getValue(Contact.class);
+
+                if (contact != null) {
+
+                    parentName = contact.getName();
+                    parentStatus = contact.getStatus();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void fetchClasses(List<String> classes) {
+
+        List<ClassModel> classModels = new ArrayList<>();
+
+        for (String s : classes) {
+
+            reference.child("Notes").child(s).addListenerForSingleValueEvent(new ValueEventListener() {
+
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                    ClassModel mClass = dataSnapshot.getValue(ClassModel.class);
+                    classModels.add(mClass);
+
+                    fetchGrades(classModels);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
         }
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_notes, container, false);
+    private void fetchGrades(List<ClassModel> classes) {
+
+        List<Grade> grades = new ArrayList<>();
+
+        for (ClassModel c : classes) {
+
+            reference.child("Notes").child(c.getClassId()).child("Grades")
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                    for (DataSnapshot d : dataSnapshot.getChildren()) {
+
+                        Grade grade = d.getValue(Grade.class);
+
+                        if (grade != null) {
+
+                            grade.setClassName(c.getClassName());
+                            grade.setParentName(parentName);
+                            grade.setParentStatus(parentStatus);
+                            grade.setGrade(grade.getGrades().get(user.getUid()));
+
+                            Log.d("Grade", new Gson().toJson(grade));
+
+                            grades.add(grade);
+                        }
+                    }
+
+                    adapter = new ParentGradesAdapter(context, grades);
+                    listView.setAdapter(adapter);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
     }
 }
