@@ -1,25 +1,39 @@
 package com.example.schoolteacher.parents;
 
+import android.content.Context;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import com.example.schoolteacher.Adapter.UpcomingAdapter;
+import com.example.schoolteacher.Model.Assignment;
+import com.example.schoolteacher.Model.ClassModel;
 import com.example.schoolteacher.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class UpcomingFragment extends Fragment {
 
-    String noteId;
+    private ListView listView;
+    private Context context;
 
-    private View upcomingFragment;
+    private UpcomingAdapter adapter;
+    private DatabaseReference reference;
 
     public UpcomingFragment() {
         // Required empty public constructor
@@ -27,15 +41,119 @@ public class UpcomingFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-//        noteId = getArguments().getString("id");
+        View view =  inflater.inflate(R.layout.fragment_upcoming, container, false);
+        listView = view.findViewById(R.id.upcomingLv);
 
-        // Inflate the layout for this fragment
-        upcomingFragment =  inflater.inflate(R.layout.fragment_upcoming, container, false);
-
-        return upcomingFragment;
+        return view;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
+        super.onViewCreated(view, savedInstanceState);
+
+        initialize();
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+
+        super.onAttach(context);
+        this.context = context;
+    }
+
+    private void initialize() {
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user == null) {
+
+            return;
+        }
+
+        List<String> classIds = new ArrayList<>();
+        reference = FirebaseDatabase.getInstance().getReference();
+
+        reference.child("Users").child(user.getUid()).child("Classes").addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot d : dataSnapshot.getChildren()) {
+
+                    classIds.add(d.getKey());
+                }
+
+                loadClassInfo(classIds);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void loadClassInfo(List<String> classIds) {
+
+        List<ClassModel> classes = new ArrayList<>();
+
+        reference.child("Notes").addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot d : dataSnapshot.getChildren()) {
+
+                    if (classIds.contains(d.getKey())) {
+
+                        classes.add(d.getValue(ClassModel.class));
+                    }
+                }
+
+                loadClassAttendance(classes);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void loadClassAttendance(List<ClassModel> classes) {
+
+        List<Assignment> assignments = new ArrayList<>();
+
+        for (ClassModel c : classes) {
+
+            reference.child("Notes").child(c.getClassId()).child("Assignments")
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                    for (DataSnapshot d : dataSnapshot.getChildren()) {
+
+                        Assignment assignment = d.getValue(Assignment.class);
+
+                        if (assignment != null) {
+
+                            assignments.add(assignment);
+                        }
+                    }
+
+                    adapter = new UpcomingAdapter(context, assignments);
+                    listView.setAdapter(adapter);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
+    }
 }

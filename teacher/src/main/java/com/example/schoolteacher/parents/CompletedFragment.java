@@ -1,65 +1,153 @@
 package com.example.schoolteacher.parents;
 
+import android.content.Context;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import com.example.schoolteacher.Adapter.DueAdapter;
+import com.example.schoolteacher.Model.ClassModel;
+import com.example.schoolteacher.Model.Stream;
 import com.example.schoolteacher.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link CompletedFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import java.util.ArrayList;
+import java.util.List;
+
 public class CompletedFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private ListView listView;
+    private Context context;
 
-    public CompletedFragment() {
-        // Required empty public constructor
-    }
+    private DueAdapter adapter;
+    private DatabaseReference reference;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment CompletedFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static CompletedFragment newInstance(String param1, String param2) {
-        CompletedFragment fragment = new CompletedFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        View view = inflater.inflate(R.layout.fragment_completed, container, false);
+        listView = view.findViewById(R.id.due_list_view);
+
+        return view;
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
+        super.onViewCreated(view, savedInstanceState);
+
+        initialize();
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+
+        super.onAttach(context);
+        this.context = context;
+    }
+
+    private void initialize() {
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user == null) {
+
+            return;
         }
+
+        List<String> classIds = new ArrayList<>();
+        reference = FirebaseDatabase.getInstance().getReference();
+
+        reference.child("Users").child(user.getUid()).child("Classes").addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot d : dataSnapshot.getChildren()) {
+
+                    classIds.add(d.getKey());
+                }
+
+                loadClassInfo(classIds);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_completed, container, false);
+    private void loadClassInfo(List<String> classIds) {
+
+        List<ClassModel> classes = new ArrayList<>();
+
+        reference.child("Notes").addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot d : dataSnapshot.getChildren()) {
+
+                    if (classIds.contains(d.getKey())) {
+
+                        classes.add(d.getValue(ClassModel.class));
+                    }
+                }
+
+                loadClassAttendance(classes);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void loadClassAttendance(List<ClassModel> classes) {
+
+        List<Stream> streams = new ArrayList<>();
+
+        for (ClassModel c : classes) {
+
+            reference.child("Notes").child(c.getClassId()).child("Streams")
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                    for (DataSnapshot d : dataSnapshot.getChildren()) {
+
+                        Stream stream = d.getValue(Stream.class);
+
+                        if (stream != null) {
+
+                            streams.add(stream);
+                        }
+                    }
+
+                    adapter = new DueAdapter(context, streams);
+                    listView.setAdapter(adapter);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+        }
     }
 }
