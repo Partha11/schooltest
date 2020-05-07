@@ -153,8 +153,6 @@ public class LoginActivity extends AppCompatActivity {
 
             if (firebaseAuth.getCurrentUser() != null && userType.equals("Teacher")) {
 
-                setType("teacher");
-
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
@@ -162,8 +160,6 @@ public class LoginActivity extends AppCompatActivity {
                 overridePendingTransition(0, 0);
 
             } else if (firebaseAuth.getCurrentUser() != null && userType.equals("Parent")) {
-
-                setType("parent");
 
                 Intent intent = new Intent(LoginActivity.this, MainParentsActivity.class);
                 startActivity(intent);
@@ -201,16 +197,26 @@ public class LoginActivity extends AppCompatActivity {
                         DatabaseReference current_user_db = FirebaseDatabase.getInstance().getReference().child("Users").child(userID);
 
                         current_user_db.addValueEventListener(new ValueEventListener() {
+
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
                                 String userType = dataSnapshot.child("userType").getValue().toString();
+
                                 if (userType.equals("Parent") && item.equals("Parent")) {
+
+                                    setType("parent");
+
                                     Intent intent = new Intent(LoginActivity.this, MainParentsActivity.class);
                                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION );
                                     startActivity(intent);
                                     finish();
                                     overridePendingTransition(0, 0);
+
                                 }  else if (userType.equals("Teacher") && item.equals("Teacher")) {
+
+                                    setType("teacher");
+
                                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                                     startActivity(intent);
