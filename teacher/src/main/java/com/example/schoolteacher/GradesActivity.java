@@ -91,14 +91,14 @@ public class GradesActivity extends AppCompatActivity {
             }
 
             Grade grade = new Grade(key, String.valueOf(System.currentTimeMillis()));
-            HashMap<String, String> present = new HashMap<>();
+            HashMap<String, String> grades = new HashMap<>();
 
             for (Contact contact: contacts) {
 
-                present.put(contact.getUserId(), contact.getGrade());
+                grades.put(contact.getUserId(), contact.getGrade());
             }
 
-            grade.setGrades(present);
+            grade.setGrades(grades);
             reference.child("Notes").child(classes.get(spinner.getSelectedItemPosition()).getClassId())
                     .child("Grades").child(key).setValue(grade);
         }

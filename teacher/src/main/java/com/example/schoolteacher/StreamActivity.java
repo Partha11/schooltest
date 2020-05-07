@@ -9,7 +9,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NavUtils;
@@ -36,7 +35,6 @@ public class StreamActivity extends AppCompatActivity implements AdapterView.OnI
     private List<Stream> streams;
     private ListView listView;
 
-    AlertDialog dialog;
     String noteId;
 
     @Override

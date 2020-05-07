@@ -115,10 +115,12 @@ public class ScheduleActivity extends AppCompatActivity  {
 
         for (ClassModel c : classes) {
 
-            reference.child(c.getClassId()).child("Schedules").addListenerForSingleValueEvent(new ValueEventListener() {
+            reference.child(c.getClassId()).child("Schedules").addValueEventListener(new ValueEventListener() {
 
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                    schedules.clear();
 
                     for (DataSnapshot d : dataSnapshot.getChildren()) {
 
@@ -141,30 +143,6 @@ public class ScheduleActivity extends AppCompatActivity  {
             });
         }
     }
-
-
-/*    private void loadSchedules() {
-        subs.clear();
-        times.clear();
-        String qu = "SELECT * FROM SCHEDULE ORDER BY subject";
-//        Cursor cursor = AppBase.handler.execQuery(qu);
-        if (adapter == null || adapter.getCount() == 0) {
-            Toast.makeText(getBaseContext(), "No Schedules Available", Toast.LENGTH_LONG).show();
-        } else {
-//            cursor.moveToFirst();
-            while (!cursor.isAfterLast()) {
-                subx.add(cursor.getString(1));
-                subs.add(cursor.getString(1) + "\nfor " + cursor.getString(0) + "\nat " + cursor.getString(2) + " : " + cursor.getString(3));
-                times.add(cursor.getString(2));
-                cursor.moveToNext();
-            }
-        }
-        ArrayAdapter adapter = new ArrayAdapter(getBaseContext(), android.R.layout.simple_list_item_1, subs);
-        listView.setAdapter(adapter);
-    }
-
- */
-
 
     public void refresh(MenuItem item) {
 

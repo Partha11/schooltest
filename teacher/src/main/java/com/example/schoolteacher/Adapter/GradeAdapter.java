@@ -69,7 +69,7 @@ public class GradeAdapter extends ArrayAdapter<Contact> {
 
             @Override
             public void afterTextChanged(Editable editable) {
-
+                //Nothing
             }
         });
 
