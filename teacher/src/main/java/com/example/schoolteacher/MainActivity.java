@@ -3,7 +3,6 @@ package com.example.schoolteacher;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -29,11 +28,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.AccountHeaderBuilder;
+import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
-import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
-import com.mikepenz.materialdrawer.model.SectionDrawerItem;
+import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -42,8 +43,6 @@ import java.util.HashMap;
 public class MainActivity extends AppCompatActivity {
 
     // Firebase instance variables
-    private FirebaseAuth mFirebaseAuth;
-    private FirebaseUser mFirebaseUser;
     private DatabaseReference rootRef;
     private String currentUserId;
 
@@ -56,10 +55,12 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     public ImageView postImage;
 
-
+    private FirebaseUser user;
+    private Drawer result;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -77,79 +78,75 @@ public class MainActivity extends AppCompatActivity {
 //        getSupportFragmentManager().beginTransaction().replace(R.id.container, new FirstFragment()).commit();
 
 
-        // Initialize Firebase Auth
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        mFirebaseUser = mFirebaseAuth.getCurrentUser();
-        rootRef = FirebaseDatabase.getInstance().getReference();
-
-
-
         //Navigation drawer
-        new DrawerBuilder().withActivity(this).build();
+        //       new DrawerBuilder().build();
+//        String name = getIntent().getStringExtra("name");
+//        overrideDrawerImageLoaderPicasso();
 
+        ProfileDrawerItem headerItem = new ProfileDrawerItem()
+                .withIdentifier(101)
+                .withName("Name Surname")
+                .withEmail("Edit Profile")
+                .withTextColorRes(R.color.material_drawer_header_selection_text)
+                .withIcon(R.drawable.profile1);
 
+        //Header
+        AccountHeader drawerHeader = new AccountHeaderBuilder()
+                .withActivity(this)
+                .withHeaderBackground(R.drawable.header)
+                .addProfiles(headerItem).withOnAccountHeaderListener((view, profile, currentProfile) -> {
 
+                    Intent intent = new Intent(MainActivity.this, ProfileInfoActivity.class);
+                    startActivity(intent);
+                    return false;
 
-        //primary items
-        PrimaryDrawerItem profile = new PrimaryDrawerItem()
-                .withIdentifier(1)
-                .withName(R.string.name)
-                .withDescription("Edit Profile")
-                .withDescriptionTextColorRes(R.color.black_overlay)
-                .withIcon(R.drawable.ic_account_circle);
+                }).build();
+
+//        Picasso.get().load(R.drawable.avatar).into(view);
+
 
         //secondary items
-        SecondaryDrawerItem calendar = new SecondaryDrawerItem()
+        PrimaryDrawerItem calendar = new PrimaryDrawerItem()
                 .withIdentifier(11)
                 .withName(R.string.drawer_item_calendar)
                 .withIcon(R.drawable.ic_calendar);
-        SecondaryDrawerItem attendance = new SecondaryDrawerItem()
+        PrimaryDrawerItem attendance = new PrimaryDrawerItem()
                 .withIdentifier(12)
                 .withName(R.string.drawer_item_attendance)
                 .withIcon(R.drawable.ic_attendance);
-        SecondaryDrawerItem whatsdue = new SecondaryDrawerItem()
-                .withIdentifier(13)
-                .withName(R.string.drawer_item_assignment)
-                .withIcon(R.drawable.ic_assignment);
-        SecondaryDrawerItem grades = new SecondaryDrawerItem()
+        PrimaryDrawerItem grades = new PrimaryDrawerItem()
                 .withIdentifier(14)
                 .withName(R.string.drawer_item_grades)
                 .withIcon(R.drawable.ic_grades);
-        SecondaryDrawerItem folders = new SecondaryDrawerItem()
-                .withIdentifier(15)
-                .withName(R.string.drawer_item_folders)
-                .withIcon(R.drawable.ic_folder);
 
         //settings, help, contact items
-        SecondaryDrawerItem settings = new SecondaryDrawerItem()
+        PrimaryDrawerItem settings = new PrimaryDrawerItem()
                 .withIdentifier(97)
                 .withName(R.string.drawer_item_settings)
                 .withIcon(R.drawable.ic_setting);
-        SecondaryDrawerItem about = new SecondaryDrawerItem()
+        PrimaryDrawerItem about = new PrimaryDrawerItem()
                 .withIdentifier(98)
                 .withName(R.string.about)
                 .withIcon(R.drawable.ic_help);
-        SecondaryDrawerItem logout = new SecondaryDrawerItem()
+        PrimaryDrawerItem logout = new PrimaryDrawerItem()
                 .withIdentifier(99)
                 .withName(R.string.drawer_item_logout)
                 .withIcon(R.drawable.ic_logout);
 
 
-        new DrawerBuilder()
+        result = new DrawerBuilder()
                 .withActivity(this)
+                .withAccountHeader(drawerHeader)
                 .withToolbar(toolbar)
                 .withActionBarDrawerToggleAnimated(true)
-                .withTranslucentStatusBar(false)
+                .withTranslucentStatusBar(true)
                 .withFullscreen(true)
                 .withSavedInstance(savedInstanceState)
                 .addDrawerItems(
-                        profile,
-                        new SectionDrawerItem(),
+//                        new SectionDrawerItem(),
                         calendar,
                         attendance,
-                        whatsdue,
                         grades,
-                        folders,
                         new DividerDrawerItem(),
                         settings,
                         about,
@@ -157,21 +154,19 @@ public class MainActivity extends AppCompatActivity {
 
                 )
                 .withOnDrawerItemClickListener((view, position, drawerItem) -> {
+
                     if (drawerItem != null) {
+
                         Intent intent = null;
+
                         if (drawerItem.getIdentifier() == 1) {
-                            intent = new Intent(MainActivity.this, ProfileInfoActivity.class);
+//                                intent = new Intent(MainActivity.this, ProfileInfoActivity.class);
                         } else if (drawerItem.getIdentifier() == 11) {
                             intent = new Intent(MainActivity.this, ScheduleActivity.class);
                         } else if (drawerItem.getIdentifier() == 12) {
                             intent = new Intent(MainActivity.this, AttendanceActivity.class);
-                        } else if (drawerItem.getIdentifier() == 13) {
-                           // intent = new Intent(MainActivity.this, Class.class);
                         } else if (drawerItem.getIdentifier() == 14) {
                             intent = new Intent(MainActivity.this, GradesActivity.class);
-                            //intent = new Intent(MainActivity.this, Class.class);
-                        } else if (drawerItem.getIdentifier() == 15) {
-                            //intent = new Intent(MainActivity.this, Class.class);
                         } else if (drawerItem.getIdentifier() == 97) {
                             intent = new Intent(MainActivity.this, SettingsActivity.class);
                         } else if (drawerItem.getIdentifier() == 98) {
@@ -183,6 +178,7 @@ public class MainActivity extends AppCompatActivity {
 
                         }
                         if (intent != null) {
+
                             MainActivity.this.startActivity(intent);
                         }
                     }
@@ -192,34 +188,30 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         //End of Navigation drawer
 
-
         //bottom nav
 
-        bottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        bottomNav.setOnNavigationItemSelectedListener(item -> {
 
-                switch (item.getItemId()) {
-                    case R.id.bottomBarItemFirst:
-                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                        overridePendingTransition(0, 0);
-                        break;
-                    case R.id.bottomBarItemSecond:
-                        startActivity(new Intent(getApplicationContext(), ClassActivity.class));
-                        overridePendingTransition(0, 0);
-                        break;
-                    case R.id.bottomBarItemThird:
-                        startActivity(new Intent(getApplicationContext(), MessageActivity.class));
-                        overridePendingTransition(0, 0);
-                        break;
-                    case R.id.bottomBarItemFourth:
-                        startActivity(new Intent(getApplicationContext(), NotificationsActivity.class));
-                        overridePendingTransition(0,0);
-                        break;
-                }
-
-                return true;
+            switch (item.getItemId()) {
+                case R.id.bottomBarItemFirst:
+                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                    overridePendingTransition(0, 0);
+                    break;
+                case R.id.bottomBarItemSecond:
+                    startActivity(new Intent(getApplicationContext(), ClassActivity.class));
+                    overridePendingTransition(0, 0);
+                    break;
+                case R.id.bottomBarItemThird:
+                    startActivity(new Intent(getApplicationContext(), MessageActivity.class));
+                    overridePendingTransition(0, 0);
+                    break;
+                case R.id.bottomBarItemFourth:
+                    startActivity(new Intent(getApplicationContext(), NotificationsActivity.class));
+                    overridePendingTransition(0,0);
+                    break;
             }
+
+            return true;
         });
 
         // post
@@ -241,10 +233,6 @@ public class MainActivity extends AppCompatActivity {
         mBlogList = findViewById(R.id.blog_list);
         mBlogList.setHasFixedSize(true);
         mBlogList.setLayoutManager(linearLayoutManager);
-
-
-
-
     }
 
     public void AddPost(View v) {
@@ -253,15 +241,21 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onStart() {
+
         super.onStart();
-        FirebaseUser currentUser = mFirebaseAuth.getCurrentUser();
-        if (currentUser == null) {
+
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        rootRef = FirebaseDatabase.getInstance().getReference();
+
+        if (user == null) {
+
             sendToStart();
+
         } else {
-            VerifyUserExistance();
+
+            verifyExistence();
             updateUserStatus("online");
         }
-
 
         Query conversationQuery = mDatabase.orderByChild("timestamp");
 
@@ -288,8 +282,9 @@ public class MainActivity extends AppCompatActivity {
 
                 Query lastMessageQuery = mDatabase.child(list_blog_id).limitToLast(1);
                 lastMessageQuery.addChildEventListener(new ChildEventListener() {
+
                     @Override
-                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    public void onChildAdded(@NonNull DataSnapshot dataSnapshot, String s) {
 
                         viewHolder.setDesc(model.getDesc());
                         viewHolder.setImage(model.getImage());
@@ -298,78 +293,70 @@ public class MainActivity extends AppCompatActivity {
                         viewHolder.setStatus(model.getStatus());
                         viewHolder.setTimestamp(model.getTimestamp());
                         userID = model.getUid();
+                    }
 
-
+                    @Override
+                    public void onChildChanged(@NonNull DataSnapshot dataSnapshot, String s) {
 
                     }
 
                     @Override
-                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                    public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
 
                     }
 
                     @Override
-                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+                    public void onChildMoved(@NonNull DataSnapshot dataSnapshot, String s) {
 
                     }
 
                     @Override
-                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
 
                     }
                 });
 
 
-                viewHolder.postImage.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
+                viewHolder.postImage.setOnClickListener(view -> {
 
-                        Intent imageFullScreen = new Intent(getApplicationContext(), PhotoActivity.class);
-                        imageFullScreen.putExtra("uid", list_blog_id);
-                        imageFullScreen.putExtra("from", "RequestsFragment");
-                        startActivity(imageFullScreen);
+                    Intent imageFullScreen = new Intent(getApplicationContext(), PhotoActivity.class);
+                    imageFullScreen.putExtra("uid", list_blog_id);
+                    imageFullScreen.putExtra("from", "RequestsFragment");
+                    startActivity(imageFullScreen);
 
-                    }
                 });
 
 
 
-                viewHolder.mLikeBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
+                viewHolder.mLikeBtn.setOnClickListener(v -> {
 
+                    mProcessLike = true;
 
-                        mProcessLike = true;
+                    mDatabase.addValueEventListener(new ValueEventListener() {
 
-                        mDatabase.addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                if (mProcessLike) {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                                    if (dataSnapshot.child(list_blog_id).hasChild(mAuth.getCurrentUser().getUid())) {
+                            if (mProcessLike) {
 
-                                        mDatabaseLike.child(list_blog_id).child(mAuth.getCurrentUser().getUid()).removeValue();
-                                        mProcessLike = false;
+                                if (dataSnapshot.child(list_blog_id).hasChild(mAuth.getCurrentUser().getUid())) {
 
-                                    } else {
-                                        mDatabaseLike.child(list_blog_id).child(mAuth.getCurrentUser().getUid()).setValue("Lliked");
-                                        mProcessLike = false;
-                                    }
+                                    mDatabaseLike.child(list_blog_id).child(mAuth.getCurrentUser().getUid()).removeValue();
+                                    mProcessLike = false;
+
+                                } else {
+                                    mDatabaseLike.child(list_blog_id).child(mAuth.getCurrentUser().getUid()).setValue("Lliked");
+                                    mProcessLike = false;
                                 }
                             }
+                        }
 
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                            }
-                        });
+                        }
+                    });
 
-                    }
                 });
 
             }
@@ -378,16 +365,18 @@ public class MainActivity extends AppCompatActivity {
 
         firebaseRecyclerAdapter.startListening();
         mBlogList.setAdapter(firebaseRecyclerAdapter);
-
     }
 
 
-    private void VerifyUserExistance() {
-        String currentUserID = mFirebaseAuth.getCurrentUser().getUid();
-        rootRef.child("Users").child(currentUserID).addValueEventListener(new ValueEventListener() {
+    private void verifyExistence() {
+
+        rootRef.child("Users").child(user.getUid()).addValueEventListener(new ValueEventListener() {
+
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
                 if (!(dataSnapshot.child("name").exists())) {
+
                     SendUserToProfileInfoActivity();
                 }
             }
@@ -400,11 +389,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void SendUserToProfileInfoActivity() {
+
         Intent settingsIntent = new Intent(MainActivity.this, ProfileInfoActivity.class);
         startActivity(settingsIntent);
     }
 
     private void updateUserStatus(String state) {
+
         String saveCurrentUserTime, saveCurrentUserDate;
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat currentDate = new SimpleDateFormat("MMM dd, yyyy");
@@ -418,12 +409,13 @@ public class MainActivity extends AppCompatActivity {
         onlineStateMap.put("date", saveCurrentUserDate);
         onlineStateMap.put("state", state);
 
-        currentUserId = mFirebaseUser.getUid();
+        currentUserId = user.getUid();
         rootRef.child("Users").child(currentUserId).child("userState")
                 .updateChildren(onlineStateMap);
     }
 
     private void sendToStart() {
+
         Intent startIntent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(startIntent);
         finish();
@@ -454,3 +446,4 @@ public class MainActivity extends AppCompatActivity {
 
 
 }
+

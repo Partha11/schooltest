@@ -1,6 +1,8 @@
 package com.example.schoolteacher.login;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -21,9 +23,6 @@ import com.example.schoolteacher.R;
 import com.example.schoolteacher.ResetPasswordActivity;
 import com.example.schoolteacher.SplashActivity;
 import com.example.schoolteacher.parents.MainParentsActivity;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -57,9 +56,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onStart() {
 
         super.onStart();
-
         mAuth.addAuthStateListener(mAuthListner);
-
     }
 
     @Override
@@ -71,7 +68,10 @@ public class LoginActivity extends AppCompatActivity {
         //check the current user
         if (mAuth.getCurrentUser() != null) {
 
-            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            Intent intent = getType().equals("teacher") ? new Intent(LoginActivity.this, MainActivity.class) :
+                    new Intent(LoginActivity.this, MainParentsActivity.class);
+
+            startActivity(intent);
             finish();
             overridePendingTransition(0, 0);
         }
@@ -152,6 +152,9 @@ public class LoginActivity extends AppCompatActivity {
         mAuthListner = firebaseAuth -> {
 
             if (firebaseAuth.getCurrentUser() != null && userType.equals("Teacher")) {
+
+                setType("teacher");
+
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
@@ -159,6 +162,9 @@ public class LoginActivity extends AppCompatActivity {
                 overridePendingTransition(0, 0);
 
             } else if (firebaseAuth.getCurrentUser() != null && userType.equals("Parent")) {
+
+                setType("parent");
+
                 Intent intent = new Intent(LoginActivity.this, MainParentsActivity.class);
                 startActivity(intent);
                 finish();
@@ -166,9 +172,6 @@ public class LoginActivity extends AppCompatActivity {
                 overridePendingTransition(0, 0);
             }
         };
-
-
-
     }
 
     private void loginrUser(String email, String password, final String item) {
@@ -178,66 +181,73 @@ public class LoginActivity extends AppCompatActivity {
 
         //authenticate user
         mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
+                .addOnCompleteListener(LoginActivity.this, task -> {
 
-                        progressBar.setVisibility(View.GONE);
-                        mViewHelper.setVisibility(View.INVISIBLE);
-                        ahlogin.setVisibility(View.VISIBLE);
+                    progressBar.setVisibility(View.GONE);
+                    mViewHelper.setVisibility(View.INVISIBLE);
+                    ahlogin.setVisibility(View.VISIBLE);
 
-                        if (task.isSuccessful()) {
-                            // there was an error
-                            Log.d(TAG, "signInWithEmail:success");
+                    if (task.isSuccessful()) {
+                        // there was an error
+                        Log.d(TAG, "signInWithEmail:success");
 
-                            userID = mAuth.getCurrentUser().getUid();
+                        userID = mAuth.getCurrentUser().getUid();
 
-                            Intent userIntent = new Intent(LoginActivity.this, SplashActivity.class);
-                            userIntent.putExtra("userID", userID);
-                            startActivity(userIntent);
+                        Intent userIntent = new Intent(LoginActivity.this, SplashActivity.class);
+                        userIntent.putExtra("userID", userID);
+                        startActivity(userIntent);
 
 
-                            DatabaseReference current_user_db = FirebaseDatabase.getInstance().getReference().child("Users").child(userID);
+                        DatabaseReference current_user_db = FirebaseDatabase.getInstance().getReference().child("Users").child(userID);
 
-                            current_user_db.addValueEventListener(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                    String userType = dataSnapshot.child("userType").getValue().toString();
-                                    if (userType.equals("Parent") && item.equals("Parent")) {
-                                        Intent intent = new Intent(LoginActivity.this, MainParentsActivity.class);
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION );
-                                        startActivity(intent);
-                                        finish();
-                                        overridePendingTransition(0, 0);
-                                    }  else if (userType.equals("Teacher") && item.equals("Teacher")) {
-                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                                        startActivity(intent);
-                                        finish();
-                                        overridePendingTransition(0, 0);
-
-                                    }
-
+                        current_user_db.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                String userType = dataSnapshot.child("userType").getValue().toString();
+                                if (userType.equals("Parent") && item.equals("Parent")) {
+                                    Intent intent = new Intent(LoginActivity.this, MainParentsActivity.class);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION );
+                                    startActivity(intent);
+                                    finish();
+                                    overridePendingTransition(0, 0);
+                                }  else if (userType.equals("Teacher") && item.equals("Teacher")) {
+                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                                    startActivity(intent);
+                                    finish();
+                                    overridePendingTransition(0, 0);
 
                                 }
 
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                                }
-                            });
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
 
 
-                        } else {
-                            Log.d(TAG, "singInWithEmail:Fail");
-                            Toast.makeText(LoginActivity.this, getString(R.string.failed), Toast.LENGTH_LONG).show();
-                        }
+                    } else {
+                        Log.d(TAG, "singInWithEmail:Fail");
+                        Toast.makeText(LoginActivity.this, getString(R.string.failed), Toast.LENGTH_LONG).show();
                     }
-
                 });
-
-
     }
 
+    private void setType(String type) {
 
+        SharedPreferences preferences = getSharedPreferences("user_info", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        editor.putString("type", type);
+        editor.apply();
+    }
+
+    private String getType() {
+
+        SharedPreferences preferences = getSharedPreferences("user_info", Context.MODE_PRIVATE);
+        return preferences.getString("type", "teacher");
+    }
 }
