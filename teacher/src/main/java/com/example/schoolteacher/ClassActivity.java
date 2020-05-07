@@ -3,13 +3,11 @@ package com.example.schoolteacher;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -37,22 +35,17 @@ import java.util.List;
 
 public class ClassActivity extends AppCompatActivity {
 
-    String userID;
+    private DatabaseReference reference;
+    private List<ClassModel> classList;
 
-    FirebaseDatabase firebaseDatabase;
-    DatabaseReference myRef;
-    List<ClassModel> classlist;
-    ListView listView;
+    private ListView listView;
+    private TextView tvNoteCount;
 
-    TextView tvNoteCount;
-
-    AlertDialog dialog;
-
-    private FirebaseAuth mFirebaseAuth;
-    private FirebaseUser currentUser;
+    private FirebaseUser user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_class);
 
@@ -142,7 +135,6 @@ public class ClassActivity extends AppCompatActivity {
                 .withIcon(R.drawable.ic_logout);
 
 
-
         new DrawerBuilder()
                 .withActivity(this)
                 .withToolbar(toolbar)
@@ -198,22 +190,30 @@ public class ClassActivity extends AppCompatActivity {
                     return false;
                 })
                 .build();
-        //End of Navigation drawer
 
+        initialize();
+    }
 
-        // Classes (notes for now)
+    private void initialize() {
 
         listView = findViewById(R.id.listView);
-        classlist = new ArrayList<>();
         tvNoteCount = findViewById(R.id.tvNoteCount);
-        userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        firebaseDatabase = FirebaseDatabase.getInstance();
-        myRef = firebaseDatabase.getReference("Notes");
+        classList = new ArrayList<>();
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        reference = FirebaseDatabase.getInstance().getReference("Notes");
+
+        if (user == null) {
+
+            sendToStart();
+            return;
+        }
+
+        fetchClasses();
 
         listView.setOnItemClickListener((parent, view, position, noteId) -> {
 
-            ClassModel mClass = classlist.get(position);
+            ClassModel mClass = classList.get(position);
             Intent intent = new Intent(getApplicationContext(), ClassworkActivity.class);
 
             intent.putExtra("id", mClass.getClassId());
@@ -227,20 +227,42 @@ public class ClassActivity extends AppCompatActivity {
         fab.setOnClickListener(view -> startActivity(new Intent(getApplicationContext(), AddNoteActivity.class)));
     }
 
+    private void fetchClasses() {
 
-    @Override
-    protected void onStart() {
+        reference.addValueEventListener(new ValueEventListener() {
 
-        super.onStart();
-        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-        if (currentUser == null) {
+                int count = 0;
+                String classText;
 
-            sendToStart();
-            return;
-        }
+                classList.clear();
 
-        getDataForFirebase();
+                for (DataSnapshot d : dataSnapshot.getChildren()) {
+
+                    ClassModel mClass = d.getValue(ClassModel.class);
+
+                    if (mClass != null && mClass.getCreatedBy().equals(user.getEmail())) {
+
+                        classList.add(mClass);
+                    }
+                }
+
+                Collections.reverse(classList);
+                NoteAdapter noteAdapter = new NoteAdapter(ClassActivity.this, classList);
+
+                classText = count + " " + getString(R.string.classes);
+
+                tvNoteCount.setText(classText);
+                listView.setAdapter(noteAdapter);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private void sendToStart() {
@@ -248,51 +270,5 @@ public class ClassActivity extends AppCompatActivity {
         Intent startIntent = new Intent(ClassActivity.this, LoginActivity.class);
         startActivity(startIntent);
         finishAffinity();
-    }
-
-/*
-    public void addNote(View view) {
-        Intent intent = new Intent(getApplicationContext(), AddNoteActivity.class);
-        startActivity(intent);
-    }
-
- */
-
-
-    public void getDataForFirebase() {
-
-        myRef.addValueEventListener(new ValueEventListener() {
-
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                int count = 0;
-                String cText;
-
-                classlist.clear();
-
-                for (DataSnapshot ds : dataSnapshot.getChildren()) {
-
-                    ClassModel notes = ds.getValue(ClassModel.class);
-                    classlist.add(notes);
-
-                    count++;
-                }
-
-                Collections.reverse(classlist);
-                NoteAdapter noteAdapter = new NoteAdapter(ClassActivity.this, classlist);
-
-                cText = count + " " + getString(R.string.classes);
-
-                tvNoteCount.setText(cText);
-                listView.setAdapter(noteAdapter);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                Log.d("Error", databaseError.getMessage());
-            }
-        });
     }
 }
